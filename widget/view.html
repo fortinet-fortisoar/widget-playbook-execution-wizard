@@ -1,0 +1,76 @@
+<link rel="stylesheet" type="text/css" href="widgets/installed/playbookExecutionWizard-1.0.0/widgetAssets/runningPlaybookStyle.css" />
+<div class="modal-header">
+    <h3 class="modal-title col-md-9">Execute "{{playbookName}}" Playbook and Show Its Playbook Execution Logs</h3>
+</div>
+
+<wizard on-finish="close()" indicators-position="top" class="cs-wizard ingestion-steps solutionpack-wizard-steps"
+    name="solutionpackWizard">
+    <wz-step wz-title="Start" wz-order="1" class="ingestion-modal-padding wizard-first-step">
+        <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
+            <div class="full-height overflow-auto">
+                <div class="display-table fixed-table-layout full-height full-width">
+                    <div class="full-height display-table-cell vertical-align-middle">
+                        <div class="col-md-6 display-flex" style="justify-content: center">
+                            <img class="img-responsive"
+                                src="widgets/installed/cicdConfiguration-1.0.0/images/process.png">
+                        </div>
+                        <div class="col-md-6 prerequisites-section padding-bottom-25 padding-left-0">
+                            <div class="font-size-40 line-height-1">Playbook Information</div><br />
+                            <div class="padding-right-30 margin-top-sm max-width-450px">
+                                <p class="font-size-14 margin-bottom-0">{{playbookDescription}}</p><br />
+                            </div>
+                            <button type="button"
+                                class="btn btn-primary btn-sm margin-top-xlg text-transform-none font-size-14"
+                                data-ng-click="moveNext()" id="solutionpack-next-btn">Let's get started<i
+                                    class="fa fa-chevron-right margin-left-sm"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </wz-step>
+    <wz-step wz-title="Playbook Execution" wz-order="2" class="ingestion-modal-padding">
+        <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
+          <div class="show-playbook-execution-logs-container" data-ng-include="'app/components/header/runningPlaybook/runningPlaybook.html'"></div>
+        </div>
+        <div class="ingestion-modal-footer">
+            <button type="button" class="btn btn-sm btn-second-primary margin-top-lg margin-left-lg"
+                id="version-control-back-btn" data-ng-click="movePrevious()"><i
+                    class="fa fa-chevron-left margin-right-sm"></i>Back</button>
+            <button type="button" class="btn btn-primary pull-right btn-sm margin-top-lg margin-right-lg"
+                data-ng-click="moveFinishNext()" id="version-control-next-btn">Next<i
+                    class="fa fa-chevron-right margin-left-sm"></i>
+            </button>
+        </div>
+    </wz-step>
+    <wz-step wz-title="Finish" wz-order="3" class="ingestion-modal-padding wizard-first-step">
+        <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
+            <div class="full-height overflow-auto">
+                <div class="display-table fixed-table-layout full-height full-width">
+                    <div class="full-height display-table-cell vertical-align-middle">
+                        <div class="col-md-6 display-flex" style="justify-content: center">
+                            <img class="img-responsive"
+                                src="widgets/installed/cicdConfiguration-1.0.0/images/finish.png">
+                        </div>
+                        <div class="col-md-6 prerequisites-section padding-bottom-25 padding-left-0">
+                            <div class="font-size-40 line-height-1">You are all set!</div><br />
+                            <div class="padding-right-30 margin-top-sm max-width-450px">
+                                <p class="font-size-14 margin-bottom-0">Following Operations are Performed.</p><br />
+                                <p class="font-size-14 margin-bottom-0" data-ng-bind-html="playbookDetails"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ingestion-modal-footer">
+            <button type="button" class="btn btn-sm btn-second-primary margin-top-lg margin-left-lg"
+                id="solutionpack-configure-back-btn" data-ng-click="movePrevious()"><i
+                    class="fa fa-chevron-left margin-right-sm"></i>Back</button>
+            <button type="button" class="btn btn-primary pull-right btn-sm margin-top-lg margin-right-lg"
+                data-ng-click="close()" id="solutionpack-configure-finish-btn">Finish<i
+                    class="fa fa-chevron-right margin-left-sm"></i>
+            </button>
+        </div>
+    </wz-step>
+</wizard>

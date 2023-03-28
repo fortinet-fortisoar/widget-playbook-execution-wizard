@@ -1,0 +1,19 @@
+{
+    "name": "playbookExecutionWizard",
+    "title": "Playbook Execution Wizard",
+    "subTitle": "Playbook Execution Wizard",
+    "published_date": "1658838600",
+    "version": "1.0.0",
+    "metadata": {
+        "description": "Import Wizard",
+        "pages": [],
+        "certified": "Yes",
+        "publisher": "Fortinet",
+        "compatibility": [
+            "7.3.1"
+        ],
+        "windowClass": "Full Width",
+        "standalone": true
+    },
+    "development": true
+}
