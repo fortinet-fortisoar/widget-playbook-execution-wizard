@@ -1,8 +1,7 @@
 {
-    "name": "playbookExecutionWizard",
+    "name": "importWizard",
     "title": "Playbook Execution Wizard",
-    "subTitle": "Playbook Execution Wizard",
-    "published_date": "1658838600",
+    "subTitle": "Import Wizard",
     "version": "1.0.0",
     "metadata": {
         "description": "Import Wizard",

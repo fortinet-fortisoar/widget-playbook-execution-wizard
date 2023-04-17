@@ -1,6 +1,6 @@
-<link rel="stylesheet" type="text/css" href="widgets/installed/playbookExecutionWizard-1.0.0/widgetAssets/runningPlaybookStyle.css" />
+<link rel="stylesheet" type="text/css" href="widgets/installed/importWizard-1.0.0/widgetAssets/runningPlaybookStyle.css" />
 <div class="modal-header">
-    <h3 class="modal-title col-md-9">Execute "{{playbookName}}" Playbook and Show Its Playbook Execution Logs</h3>
+    <h3 class="modal-title col-md-9">Execute "{{playbookTitle}}" Playbook and Show Its Playbook Execution Logs</h3>
 </div>
 
 <wizard on-finish="close()" indicators-position="top" class="cs-wizard ingestion-steps solutionpack-wizard-steps"
@@ -17,7 +17,7 @@
                         <div class="col-md-6 prerequisites-section padding-bottom-25 padding-left-0">
                             <div class="font-size-40 line-height-1">Playbook Information</div><br />
                             <div class="padding-right-30 margin-top-sm max-width-450px">
-                                <p class="font-size-14 margin-bottom-0">{{playbookDescription}}</p><br />
+                              <p class="font-size-14 margin-bottom-0" data-ng-bind-html="playbookDetails"></p>
                             </div>
                             <button type="button"
                                 class="btn btn-primary btn-sm margin-top-xlg text-transform-none font-size-14"
@@ -35,10 +35,10 @@
         </div>
         <div class="ingestion-modal-footer">
             <button type="button" class="btn btn-sm btn-second-primary margin-top-lg margin-left-lg"
-                id="version-control-back-btn" data-ng-click="movePrevious()"><i
+                id="playbook-log-back-btn" data-ng-click="movePrevious()"><i
                     class="fa fa-chevron-left margin-right-sm"></i>Back</button>
             <button type="button" class="btn btn-primary pull-right btn-sm margin-top-lg margin-right-lg"
-                data-ng-click="moveFinishNext()" id="version-control-next-btn">Next<i
+                data-ng-click="moveFinishNext()" id="playbook-log-next-btn">Next<i
                     class="fa fa-chevron-right margin-left-sm"></i>
             </button>
         </div>
@@ -56,7 +56,7 @@
                             <div class="font-size-40 line-height-1">You are all set!</div><br />
                             <div class="padding-right-30 margin-top-sm max-width-450px">
                                 <p class="font-size-14 margin-bottom-0">Following Operations are Performed.</p><br />
-                                <p class="font-size-14 margin-bottom-0" data-ng-bind-html="playbookDetails"></p>
+                                <p class="font-size-14 margin-bottom-0" data-ng-bind-html="playbookResult.playbook_result"></p>
                             </div>
                         </div>
                     </div>
