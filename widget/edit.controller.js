@@ -2,11 +2,11 @@
 (function () {
     angular
         .module('cybersponse')
-        .controller('editImportWizard100DevCtrl', editImportWizard100DevCtrl);
+        .controller('editPlaybookExecutionWizard100Ctrl', editPlaybookExecutionWizard100Ctrl);
 
-    editImportWizard100DevCtrl.$inject = ['$scope', '$uibModalInstance', 'config'];
+    editPlaybookExecutionWizard100Ctrl.$inject = ['$scope', '$uibModalInstance', 'config'];
 
-    function editImportWizard100DevCtrl($scope, $uibModalInstance, config) {
+    function editPlaybookExecutionWizard100Ctrl($scope, $uibModalInstance, config) {
         $scope.cancel = cancel;
         $scope.save = save;
         $scope.config = config;

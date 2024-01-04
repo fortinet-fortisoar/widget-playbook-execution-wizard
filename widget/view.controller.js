@@ -2,11 +2,11 @@
 (function () {
   angular
     .module('cybersponse')
-    .controller('importWizard100DevCtrl', importWizard100DevCtrl);
+    .controller('playbookExecutionWizard100Ctrl', playbookExecutionWizard100Ctrl);
 
-  importWizard100DevCtrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', 'playbookService', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http'];
+  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'Modules', 'usersService', 'playbookService', 'toaster', '$state', 'FormEntityService', 'exportService', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils'];
 
-  function importWizard100DevCtrl($scope, $q, WizardHandler, $resource, API, playbookService, $uibModal, _, Entity, $filter, websocketService, $http) {
+  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, Modules, usersService, playbookService, toaster, $state, FormEntityService, exportService, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils) {
     $scope.showDataWizard = false;
     $scope.close = close;
     $scope.moveNext = moveNext;
@@ -14,49 +14,116 @@
     $scope.movePrevious = movePrevious;
     $scope.executeGridPlaybook = executeGridPlaybook;
     $scope.playbookDetails = '';
-    //$scope.playbookTitle = ''; 
     $scope.playbookDescription = '';
     $scope.triggerStep = {};
+    $scope.commentsContent = [];
+    $scope.manualInputContent = [];
+    $scope.manualInputResult = [];
+    $scope.dummyRecordIRI = '';
+    $scope.parent_wf_id = '';
+    $scope.awaitingStep = undefined;
+    $scope.pendingInputTabProcessing = false;
     $scope.taskId = undefined;
-    initWebsocket();
-    $scope.$on('websocket:reconnect',function(){
-      initWebsocket();
-    });
-    var subscription;
-    function initWebsocket(){
-      websocketService.subscribe('runningworkflow',function(data){
-        //do nothing in case of notification recieved from same websocketSession. As it is handled gracefully.
-        if(data.sourceWebsocketId !== websocketService.getWebsocketSessionId()){
-          if($scope.taskId && data.task_id && data.task_id === $scope.taskId && data.parent_wf === 'null'){
-            angular.element(document.querySelector("[name='solutionpackWizard']").querySelector("[data-ng-controller='RunningPlaybookCtl']")).scope().params.srchBox = data.instance_ids;
-            document.querySelector("[name='solutionpackWizard']").getElementsByClassName("executed-pb-filter-container")[0].style.display = 'none';
-            $scope.$broadcast('cs:getList');
-            WizardHandler.wizard('solutionpackWizard').next();
-            $scope.taskId = undefined;
-          }
-        }
-        if(data.status=='finished'){
-          $scope.playbookInstanceIds = data;
-        }
-      }).then(function(data){
-        subscription = data;
+    $scope.awaitingStepInput = undefined;
+    $scope.loadProcessing = false;
+    $scope.loadPlaybookData = loadPlaybookData;
+    $state.params.tab = 'comments';
+    $scope.activeTab = $state.params.tab === 'logs' ? 2 : 1;
+    $scope.$watch('activeTab', function ($newTab, $oldTab) {
+      if (!$oldTab) {
+        // skip first run
+        return;
+      }
+      $state.go('.', {
+        tab: $scope.activeTab === 1 ? 'comments' : 'logs'
+      }, {
+        notify: false,
+        location: 'replace'
       });
-    }
+    });
 
-    $scope.$on('$destroy', function() {
-      if(subscription){
+    var subscription;
+
+    $scope.$on('$destroy', function () {
+      if (subscription) {
         // Unsubscribe
         websocketService.unsubscribe(subscription);
       }
     });
 
+    $scope.selectedEnv = {
+      selectedRecordPlaybook: []
+    };
+    $scope.jsonToGrid = false;
+    initWebsocket();
+    $scope.$on('websocket:reconnect', function () {
+      initWebsocket();
+    });
+
+    function initWebsocket() {
+      websocketService.subscribe('runningworkflow', function (data) {
+        if (data.parent_wf === 'null' && $scope.loadProcessing === false) {
+          $scope.loadProcessing = true;
+          $scope.parent_wf_id = data.instance_ids;
+        }
+        //do nothing in case of notification recieved from same websocketSession. As it is handled gracefully.
+        if (data.sourceWebsocketId !== websocketService.getWebsocketSessionId()) {
+          if ($scope.taskId && data.task_id && data.task_id === $scope.taskId && data.parent_wf === 'null') {
+            angular.element(document.querySelector("[name='solutionpackWizard']").querySelector("[data-ng-controller='RunningPlaybookCtl']")).scope().params.srchBox = data.instance_ids;
+            document.querySelector("[name='solutionpackWizard']").getElementsByClassName("executed-pb-filter-container")[0].style.display = 'none';
+            WizardHandler.wizard('solutionpackWizard').next();
+            $scope.taskId = undefined;
+          }
+        }
+        if (data.status == 'awaiting') {
+          $resource(API.WORKFLOW + 'api/workflows/' + data.instance_ids + '/?').get({}).$promise.then(function (response) {
+            $scope.awaitingStep = _.find(response.steps, { 'func': 'manual_input', 'status': 'awaiting' });
+            if ($scope.awaitingStep !== undefined) {
+              $resource('/api' + $scope.awaitingStep['@id'] + '?').get({}).$promise.then(function (resp) {
+                _getPendingInputDetails(resp.result.wfinput_id);
+              });
+            }
+          });
+        }
+        if (data.status == 'finished') {
+          getPlaybookResult();
+          $scope.playbookInstanceIds = data;
+        }
+      }).then(function (data) {
+        subscription = data;
+      });
+    }
+
+    function commentWebsocket() {
+      $scope.commentsContent = [];
+      var moduleID = $scope.dummyRecordIRI;
+      websocketService.subscribe(moduleID + '/comments', function (data) {
+        //do nothing in case of notification recieved from same websocketSession. As it is handled gracefully.
+
+        if (data.sourceWebsocketId !== websocketService.getWebsocketSessionId()) {
+          if (data.operation === 'create' || data.operation === 'update') {
+            _getContent(data);
+          }
+        }
+      }).then(function (data) {
+        subscription = data;
+      });
+    }
+
+    $scope.$on('$destroy', function () {
+      if (subscription) {
+        // Unsubscribe
+        websocketService.unsubscribe(subscription);
+      }
+    });
+
+    $scope.isObject = function (variable) {
+      return angular.isObject(variable);
+    };
+
     function close() {
       $scope.$parent.$parent.$parent.$ctrl.handleClose();
     }
-
-    // moveVersionControlNext() {
-    //  WizardHandler.wizard('solutionpackWizard').next();
-    //}
 
     function movePrevious() {
       WizardHandler.wizard('solutionpackWizard').previous();
@@ -68,14 +135,172 @@
     }
 
     function moveNext() {
-      executeGridPlaybook($scope.config.metadata.playbook, $scope.triggerStep);
+      loadPlaybookData($state.params.tab);
+      if ($scope.jsonToGrid) {
+        _checkTaskRecord();
+        executeGridPlaybook($scope.config.metadata.playbook, $scope.triggerStep);
+      }
+      else {
+        $scope.dummyRecordIRI = $scope.config.metadata.getSelectedRows['@id'].replace('/api/3/', '');
+        commentWebsocket();
+        executeGridPlaybook($scope.config.metadata.playbook, $scope.triggerStep);
+      }
+    }
+
+    function loadPlaybookData(tab) {
+      if (tab === 'logs') {
+        $scope.$broadcast('cs:getList');
+      }
+    }
+
+    function _checkTaskRecord() {
+      var queryBody = {
+        "logic": "AND",
+        "filters": [
+          {
+            "field": "name",
+            "operator": "eq",
+            "value": $scope.config.metadata.getSelectedRows[0].new_branch + '-' + $scope.config.metadata.getSelectedRows[0].summary,
+            "type": "primitive"
+          }
+        ]
+      };
+      var queryString = {
+        $limit: ALL_RECORDS_SIZE
+      };
+      return $resource(API.QUERY + 'tasks').save(queryString, queryBody).$promise.then(function (response) {
+        if (response['hydra:member'].length > 0) {
+          $scope.dummyRecordIRI = response['hydra:member'][0]['@id'].replace('/api/3/', '');
+          _checkDynamicVariables();
+        }
+        else {
+          _createDummyRecord();
+        }
+      });
+    }
+
+    function _checkDynamicVariables() {
+      $resource(API.WORKFLOW + 'api/dynamic-variable/?limit=1000&name=playbook_wizard_config').get({}).$promise.then(function (response) {
+        if (response['hydra:member'].length > 0) {
+          _updateDynamicVariable(response['hydra:member'][0].id);
+        }
+        else {
+          _createDynamicVariables();
+        }
+      });
+    }
+
+    function _updateDynamicVariable(id) {
+      var defer = $q.defer();
+      var url = API.WORKFLOW + 'api/dynamic-variable/' + id + '/?format=json';
+      var reqBody = {
+        "id": id,
+        "name": "playbook_wizard_config",
+        'value': '/api/3/' + $scope.dummyRecordIRI,
+        'default_value': '/api/3/' + $scope.dummyRecordIRI
+      };
+      $http.put(url, reqBody).then(function (response) {
+        if (response.status === 200) {
+          commentWebsocket();
+        }
+        defer.resolve(response);
+      }, function (error) {
+        defer.reject(error);
+      });
+      return defer.promise;
+    }
+
+    function _createDynamicVariables() {
+      var defer = $q.defer();
+      var reqBody = {
+        method: 'POST',
+        url: API.WORKFLOW + 'api/dynamic-variable/?format=json',
+        headers: {
+          'Accept': 'application/json, text/plain, */*'
+        },
+        data: {
+          'name': 'playbook_wizard_config',
+          'value': '/api/3/' + $scope.dummyRecordIRI,
+          'default_value': '/api/3/' + $scope.dummyRecordIRI
+        }
+      };
+      $http(reqBody).then(function (response) {
+        if (response.status === 200) {
+          _checkDynamicVariables()
+        }
+        defer.resolve(response);
+      }, function (error) {
+        defer.reject(error);
+      });
+      return defer.promise;
+    }
+
+    function _createDummyRecord() {
+      var defer = $q.defer();
+      var reqBody = {
+        method: 'POST',
+        url: API.BASE + 'tasks',
+        headers: {
+          'Accept': 'application/json, text/plain, */*'
+        },
+        data: {
+          "name": $scope.config.metadata.getSelectedRows[0].new_branch + '-' + $scope.config.metadata.getSelectedRows[0].summary,
+          "type": "/api/3/picklists/6d113f01-123a-4c78-b68c-029e16df9b8b",
+          "priority": "/api/3/picklists/539083a6-01f6-4ff9-a588-778cfdad4671",
+          "status": "/api/3/picklists/7669725a-28cc-4b19-98a3-9ca71e0f88f4",
+          "conflict": false,
+          "body": $scope.config.metadata.getSelectedRows[0].description
+        }
+      };
+      $http(reqBody).then(function (response) {
+        if (response.status === 201) {
+          $scope.dummyRecordIRI = response.data['@id'].replace('/api/3/', '');
+          _checkDynamicVariables();
+        }
+        defer.resolve(response);
+      }, function (error) {
+        defer.reject(error);
+      });
+      return defer.promise;
+    }
+
+    function _getContent(data) {
+      $resource(data.entityUuid[0]).get({}).$promise.then(function (details) {
+        $scope.commentsContent.push(details.content.replace('<p>', '<p class="display-inline">'));
+      });
+    }
+
+    function _getPendingInputDetails(manualInputId) {
+      $scope.pendingInputTabProcessing = true;
+      var currentUser = usersService.getCurrentUser();
+      var user = angular.copy(currentUser);
+      user.teams.push(currentUser['@id']);
+      var params = { 'owners': user.teams };
+      playbookService.getPendingDecision(manualInputId, params).then(function (data) {
+        if (angular.equals({}, data)) {
+          $scope.pendingInputTabProcessing = false;
+          return;
+        }
+        $scope.commentsContent.push(data);
+      }, function () {
+        toaster.error({
+          body: 'Error in getting Pending Input data'
+        });
+        $scope.pendingInputTabProcessing = false;
+      });
+    }
+
+    $scope.getSelectedRows = function () {
+      return $scope.gridApi.selection.getSelectedRows();
+    };
+
+    function setGridApi(gridApi) {
+      $scope.gridApi = gridApi;
     }
 
     function executeGridPlaybook(playbook, triggerStep) {
       var deferred = $q.defer();
       $resource(API.BASE + API.WORKFLOWS + playbook.uuid).get({ '$relationships': true }).$promise.then(function (playbook) {
-        //var triggerStep = playbookService.getTriggerStep(playbook);
-        
         var entity = new Entity(triggerStep.arguments.resources[0]);
         entity.loadFields().then(function () {
           if (triggerStep.arguments.inputVariables && triggerStep.arguments.inputVariables.length > 0) {
@@ -104,11 +329,14 @@
           }
         });
       });
-      return deferred.promise
+      return deferred.promise;
     }
 
     function triggerPlaybookWithRecords(playbook, module, selectedRows, manualTriggerInput) {
       var apiNoTrigger = API.MANUAL_TRIGGER + playbook.uuid;
+      if (!$scope.jsonToGrid) {
+        var selectedRows = _.map([selectedRows], obj => obj)
+      }
       var env = {
         'request': {
           'data': {
@@ -122,21 +350,31 @@
       env = _.extend(env, manualTriggerInput.inputVariables);
       return $resource(apiNoTrigger).save(env).$promise.then(function (response) {
         $scope.taskId = response.task_id;
+        $scope.loadProcessing = false;
       });
     }
-    
-    function getPlaybookResult(){
-      var endpoint = '/api/wf/api/workflows/'+$scope.playbookInstanceIds.instance_ids+'/';
+
+    function getPlaybookResult() {
+      var endpoint = API.WORKFLOW + 'api/workflows/' + $scope.parent_wf_id + '/';
       $http.get(endpoint).then(function (response) {
-         $scope.playbookResult = response.data.result;
-      }); 
+        if (response.data.status === 'finished') {
+          $scope.loadProcessing = false;
+          $scope.playbookResult = response.data.result;
+        }
+      });
     }
+
     function _init() {
-      $scope.triggerStep = _.find($scope.config.metadata.playbook.steps, function (item) { return item.uuid === $filter('getEndPathName')($scope.config.metadata.playbook.triggerStep);});
-        //var triggerStep = playbookService.getTriggerStep($scope.config.metadata.playbook);
-      console.log($scope.triggerStep);
+      if (!currentPermissionsService.availablePermission('workflows', 'execute')) {
+        return;
+      }
+      if (!CommonUtils.isObject($scope.config.metadata.getSelectedRows)) {
+        $scope.jsonToGrid = true;
+      }
+      $scope.triggerStep = _.find($scope.config.metadata.playbook.steps, function (item) { return item.uuid === $filter('getEndPathName')($scope.config.metadata.playbook.triggerStep); });
       $scope.playbookDetails = $scope.triggerStep.description || $scope.config.metadata.playbook.description;
-      $scope.playbookTitle = $scope.triggerStep.arguments. title || $scope.config.metadata.playbook.name
+      $scope.playbookTitle = $scope.triggerStep.arguments.title || $scope.config.metadata.playbook.name;
+
     }
     _init();
   }

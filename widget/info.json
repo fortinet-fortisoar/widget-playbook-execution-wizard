@@ -1,18 +1,20 @@
 {
-    "name": "importWizard",
+    "name": "playbookExecutionWizard",
     "title": "Playbook Execution Wizard",
-    "subTitle": "Import Wizard",
+    "subTitle": "Playbook Execution Wizard",
     "version": "1.0.0",
+    "publishedDate": 1703148258,
     "metadata": {
-        "description": "Import Wizard",
+        "description": "Playbook Execution Wizard",
+        "help_online": "https://github.com/fortinet-fortisoar/widget-playbook-execution-wizard/blob/release/1.0.0/README.md",
+        "snapshots": [],
         "pages": [],
         "certified": "Yes",
         "publisher": "Fortinet",
         "compatibility": [
-            "7.3.1"
+            "7.4.1"
         ],
-        "windowClass": "Full Width",
-        "standalone": true
-    },
-    "development": true
+        "standalone": true,
+        "windowClass": "Full Width"
+    }
 }

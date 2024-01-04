@@ -32,3 +32,6 @@
   height: inherit !important;
 }
 
+.show-cicd-manual-inputs .modal-body{
+  height: auto;
+}
