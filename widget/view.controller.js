@@ -4,9 +4,9 @@
     .module('cybersponse')
     .controller('playbookExecutionWizard100Ctrl', playbookExecutionWizard100Ctrl);
 
-  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'Modules', 'usersService', 'playbookService', 'toaster', '$state', 'FormEntityService', 'exportService', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils'];
+  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope'];
 
-  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, Modules, usersService, playbookService, toaster, $state, FormEntityService, exportService, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils) {
+  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope) {
     $scope.showDataWizard = false;
     $scope.close = close;
     $scope.moveNext = moveNext;
@@ -43,13 +43,7 @@
     });
 
     var subscription;
-
-    $scope.$on('$destroy', function () {
-      if (subscription) {
-        // Unsubscribe
-        websocketService.unsubscribe(subscription);
-      }
-    });
+    var commentSubscription;
 
     $scope.selectedEnv = {
       selectedRecordPlaybook: []
@@ -99,21 +93,23 @@
       var moduleID = $scope.dummyRecordIRI;
       websocketService.subscribe(moduleID + '/comments', function (data) {
         //do nothing in case of notification recieved from same websocketSession. As it is handled gracefully.
-
         if (data.sourceWebsocketId !== websocketService.getWebsocketSessionId()) {
           if (data.operation === 'create' || data.operation === 'update') {
             _getContent(data);
           }
         }
       }).then(function (data) {
-        subscription = data;
+        commentSubscription = data;
       });
     }
 
     $scope.$on('$destroy', function () {
+      $rootScope.pendingDecisionModalOpen = false;
       if (subscription) {
-        // Unsubscribe
         websocketService.unsubscribe(subscription);
+      }
+      if (commentSubscription) {
+        websocketService.unsubscribe(commentSubscription);
       }
     });
 
@@ -142,6 +138,7 @@
       }
       else {
         $scope.dummyRecordIRI = $scope.config.metadata.getSelectedRows['@id'].replace('/api/3/', '');
+        $rootScope.pendingDecisionModalOpen = true;
         commentWebsocket();
         executeGridPlaybook($scope.config.metadata.playbook, $scope.triggerStep);
       }
