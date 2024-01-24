@@ -1,6 +1,7 @@
-<link rel="stylesheet" type="text/css" href="widgets/installed/importWizard-1.0.0/widgetAssets/runningPlaybookStyle.css" />
+<link rel="stylesheet" type="text/css"
+    href="widgets/installed/importWizard-1.0.0/widgetAssets/runningPlaybookStyle.css" />
 <div class="modal-header">
-    <h3 class="modal-title col-md-9">Execute "{{playbookTitle}}" Playbook and Show Its Playbook Execution Logs</h3>
+    <h3 class="modal-title col-md-9">{{playbookTitle}}</h3>
 </div>
 
 <wizard on-finish="close()" indicators-position="top" class="cs-wizard ingestion-steps solutionpack-wizard-steps"
@@ -15,9 +16,9 @@
                                 src="widgets/installed/cicdConfiguration-1.0.0/images/process.png">
                         </div>
                         <div class="col-md-6 prerequisites-section padding-bottom-25 padding-left-0">
-                            <div class="font-size-40 line-height-1">Playbook Information</div><br />
+                            <div class="font-size-30 line-height-1">Welcome</div><br />
                             <div class="padding-right-30 margin-top-sm max-width-450px">
-                              <p class="font-size-14 margin-bottom-0" data-ng-bind-html="playbookDetails"></p>
+                                <p class="font-size-14 margin-bottom-0" data-ng-bind-html="playbookDetails"></p>
                             </div>
                             <button type="button"
                                 class="btn btn-primary btn-sm margin-top-xlg text-transform-none font-size-14"
@@ -29,16 +30,72 @@
             </div>
         </div>
     </wz-step>
-    <wz-step wz-title="Playbook Execution" wz-order="2" class="ingestion-modal-padding">
-        <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
+    <wz-step wz-title="Task Processing" wz-order="2" class="ingestion-modal-padding">
+        <div data-ng-if="loadProcessing" class="display-flex justify-content">
+            <div class="margin-left-sm margin-right-sm install-progress-icon">
+                <div class="custom-installing-spinner-content muted-50">
+                    <div class="custom-installing-spinner-block">
+                        <div class="custom-installing-spinner">
+                            <i class="icon icon-installing-loader custom-installing-icon fa fa-spin text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <span class="font-size-14 margin-0 margin-top-sm text-warning">Task execution is in progress.....</span>
+        </div>
+        <div class="margin-bottom-sm margin-top-sm text-center text-success" data-ng-if="!loadProcessing">
+            <i class="icon icon-approval margin-right-sm"></i>
+            <span>Playbook Executed Successfully ...</span>
+        </div>
+        <div class="display-flex full-width overflow-auto solutionpack-wizard-modal-body wz-step-height">
+                <uib-tabset active="activeTab" class="margin-top-11 width-100pt">
+                    <uib-tab index="1" data-ng-click="loadPlaybookData('comments')">
+                        <uib-tab-heading>
+                            <i class="icon icon-history margin-right-sm"></i>Tasks
+                        </uib-tab-heading>
+                        <div class="col-md-12 fade-in-animation">
+                        <div class="display-inline-block padding-bottom-30 width-50">
+                            <!-- Content for the left section -->
+                        </div>
+                        <div class="display-inline-block padding-bottom-30 width-40">
+                            <!-- Content for the right section -->
+                            <ul>
+                                <li data-ng-repeat="comment in commentsContent" class="list-unstyled">
+                                  <hr>
+                                    <div ng-if="!isObject(comment)">
+                                        <i data-ng-if="!isObject(comment)"
+                                            class="text-success icon icon-check margin-right-sm"></i><span
+                                            ng-bind-html="comment | domPurifySanitize"></span>
+                                    </div>
+                                    <div ng-if="isObject(comment)">
+                                        <i data-ng-if="!processing && !pendingInputTabProcessing"></i><span
+                                            class="show-cicd-manual-inputs padding-bottom-65"
+                                            data-playbook-pending-decision data-decision-response="comment"
+                                            modal="false"></span>
+                                    </div>
+                                </li>
+                            </ul>
+                          <hr>
+                        </div>
+                      </div>
+                    </uib-tab>
+                    <uib-tab index="2" data-ng-click="loadPlaybookData('logs')">
+                        <uib-tab-heading>
+                            <i class="icon icon-playbooks margin-right-sm"></i>Detailed Flow
+                        </uib-tab-heading>
+                        <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
           <div class="show-playbook-execution-logs-container" data-ng-include="'app/components/header/runningPlaybook/runningPlaybook.html'"></div>
+        </div>
+                    </uib-tab>
+                </uib-tabset>
+            
         </div>
         <div class="ingestion-modal-footer">
             <button type="button" class="btn btn-sm btn-second-primary margin-top-lg margin-left-lg"
                 id="playbook-log-back-btn" data-ng-click="movePrevious()"><i
                     class="fa fa-chevron-left margin-right-sm"></i>Back</button>
             <button type="button" class="btn btn-primary pull-right btn-sm margin-top-lg margin-right-lg"
-                data-ng-click="moveFinishNext()" id="playbook-log-next-btn">Next<i
+                data-ng-click="moveFinishNext()"  data-ng-disabled="loadProcessing" id="playbook-log-next-btn">Next<i
                     class="fa fa-chevron-right margin-left-sm"></i>
             </button>
         </div>
@@ -55,8 +112,8 @@
                         <div class="col-md-6 prerequisites-section padding-bottom-25 padding-left-0">
                             <div class="font-size-40 line-height-1">You are all set!</div><br />
                             <div class="padding-right-30 margin-top-sm max-width-450px">
-                                <p class="font-size-14 margin-bottom-0">Following Operations are Performed.</p><br />
-                                <p class="font-size-14 margin-bottom-0" data-ng-bind-html="playbookResult.playbook_result"></p>
+                             <p class="font-size-14 margin-bottom-0"
+                                    data-ng-bind-html="playbookResult.playbook_result"></p>
                             </div>
                         </div>
                     </div>
