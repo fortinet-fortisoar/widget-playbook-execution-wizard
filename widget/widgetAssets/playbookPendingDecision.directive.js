@@ -1,16 +1,16 @@
 'use strict';
 
-(function() {
+(function () {
   angular
     .module('cybersponse')
     .directive('playbookPendingDecision', playbookPendingDecision);
 
-  playbookPendingDecision.$inject = ['Field', '$filter', 'picklistsService', 'playbookService', 'toaster', '_', 'currentPermissionsService', '$interpolate', 
-  'currentDateMinusService', 'addToCurrentDateService', 'convertToRelativeDateService', 'getRelativeDateService', 'usersService', 'FormEntityService', 
-  'CommonUtils', 'Entity', 'ModalService', '$timeout'];
+  playbookPendingDecision.$inject = ['Field', '$filter', 'picklistsService', 'playbookService', 'toaster', '_', 'currentPermissionsService', '$interpolate',
+    'currentDateMinusService', 'addToCurrentDateService', 'convertToRelativeDateService', 'getRelativeDateService', 'usersService', 'FormEntityService',
+    'CommonUtils', 'Entity', 'ModalService', '$timeout'];
 
   function playbookPendingDecision(Field, $filter, picklistsService, playbookService, toaster, _, currentPermissionsService, $interpolate,
-    currentDateMinusService, addToCurrentDateService, convertToRelativeDateService, getRelativeDateService, usersService, FormEntityService, 
+    currentDateMinusService, addToCurrentDateService, convertToRelativeDateService, getRelativeDateService, usersService, FormEntityService,
     CommonUtils, Entity, ModalService, $timeout) {
     var directive = {
       restrict: 'A',
@@ -29,6 +29,7 @@
       scope.processing = false;
       scope.playbookResumed = false;
       scope.pendingDecisionFormDisabled = false;
+      scope.disabledField = false;
       scope.error = '';
       if (!scope.unauthenticated) {
         scope.playbookExecutePermission = currentPermissionsService.availablePermission('workflows', 'execute');
@@ -44,48 +45,48 @@
       var entity;
       var inputVariableEntity;
       var currentUser = usersService.getCurrentUser();
-        init();
-     
+      init();
+
       function init() {
         if (angular.isDefined(scope.decisionResponse) && scope.decisionResponse.type === 'InputBased' && scope.decisionResponse.input.schema.inputVariables.length > 0) {
-          /* jshint camelcase: false */ 
+          /* jshint camelcase: false */
           scope.processing = true;
           var stepDataVariables = scope.decisionResponse.input.schema.inputVariables;
-            var moduleField = _.find(stepDataVariables, function (variable) {
-              return variable.useRecordFieldDefault || variable.useModuleField;
-            });
-            if (angular.isDefined(moduleField)) {
-              if (angular.isUndefined(entity)) {
-                var recordEntity = FormEntityService.get();
-                var recordModule = $filter('getModuleName')(scope.decisionResponse.record);
-                if (recordEntity && recordEntity.module === recordModule && angular.equals({}, recordEntity.originalData) || !recordEntity) {
-                  entity = new Entity(recordModule);
-                  entity.get($filter('getEndPathName')(scope.decisionResponse.record)).then(function () {
-                    _prepareVariableData(stepDataVariables);
-                  });
-                } else {
-                  entity = recordEntity;
+          var moduleField = _.find(stepDataVariables, function (variable) {
+            return variable.useRecordFieldDefault || variable.useModuleField;
+          });
+          if (angular.isDefined(moduleField)) {
+            if (angular.isUndefined(entity)) {
+              var recordEntity = FormEntityService.get();
+              var recordModule = $filter('getModuleName')(scope.decisionResponse.record);
+              if (recordEntity && recordEntity.module === recordModule && angular.equals({}, recordEntity.originalData) || !recordEntity) {
+                entity = new Entity(recordModule);
+                entity.get($filter('getEndPathName')(scope.decisionResponse.record)).then(function () {
                   _prepareVariableData(stepDataVariables);
-                }
+                });
+              } else {
+                entity = recordEntity;
+                _prepareVariableData(stepDataVariables);
               }
-            } else {
-              _prepareVariableData(stepDataVariables);
             }
+          } else {
+            _prepareVariableData(stepDataVariables);
+          }
         }
       }
 
-      function _prepareVariableData(stepDataVariables){
+      function _prepareVariableData(stepDataVariables) {
         scope.fieldObject = {};
         var firstField;
-        var rows = angular.isDefined(entity) ? [entity.originalData]: [];
+        var rows = angular.isDefined(entity) ? [entity.originalData] : [];
         angular.forEach(stepDataVariables, function (inputVariable) {
           var field;
           inputVariable.title = inputVariable.label || $filter('camelCaseToHuman')(inputVariable.name);
           if (inputVariable.useRecordFieldDefault || inputVariable.useModuleField) {
             field = angular.copy(entity.fields[inputVariable.moduleField]);
-            if(angular.isUndefined(field)){
+            if (angular.isUndefined(field)) {
               scope.processing = false;
-              scope.error = '<span class="fa fa-exclamation-triangle warning-icon font-size-10"></span> <span class="font-bold font-italic">'+inputVariable.title + ' </span> field not found in ' + entity.descriptions.plural + ' module.';
+              scope.error = '<span class="fa fa-exclamation-triangle warning-icon font-size-10"></span> <span class="font-bold font-italic">' + inputVariable.title + ' </span> field not found in ' + entity.descriptions.plural + ' module.';
               return;
             }
             var commonValue = CommonUtils.getCommonValue(rows, field.name);
@@ -119,7 +120,7 @@
             }
           }
           field.visibility = inputVariable.visibilityQuery && inputVariable.visibilityQuery.filters && inputVariable.visibilityQuery.filters.length > 0 ? inputVariable.visibilityQuery : true;
-          if (field.type === 'picklist'  || field.type === 'multiselectpicklist') {
+          if (field.type === 'picklist' || field.type === 'multiselectpicklist') {
             picklistsService.loadPicklists(field);
           }
           if (!firstField) {
@@ -136,8 +137,8 @@
         scope.processing = false;
       }
 
-      function evaluateDateFieldValue(field){
-        if(angular.isString(field.value) && (field.value.indexOf('currentDateMinus') !== -1 || field.value.indexOf('addToCurrentDate') !== -1 || field.value.indexOf('getRelativeDate') !== -1)){
+      function evaluateDateFieldValue(field) {
+        if (angular.isString(field.value) && (field.value.indexOf('currentDateMinus') !== -1 || field.value.indexOf('addToCurrentDate') !== -1 || field.value.indexOf('getRelativeDate') !== -1)) {
           var valueTemplate = '{{' + field.value + '}}';
           field.value = JSON.parse($interpolate(valueTemplate)({
             currentDateMinus: currentDateMinusService,
@@ -147,7 +148,7 @@
         }
       }
 
-      scope.submitDecision = function(selectedStep) {
+      scope.submitDecision = function (selectedStep) {
         if (scope.pendingDecisionForm.$invalid) {
           scope.pendingDecisionForm.$setTouched();
           scope.pendingDecisionForm.$focusOnFirstError();
@@ -164,22 +165,22 @@
         if (!scope.unauthenticated) {
           payload.user = currentUser['@id'];
         }
-        angular.forEach(_.values(scope.fieldObject), function(field) {
+        angular.forEach(_.values(scope.fieldObject), function (field) {
           payload.input[field.name] = field.value;
         });
 
-        playbookService.resumeAwaitingPlaybook(payload, scope.decisionResponse.workflow).then(function(data) {
+        playbookService.resumeAwaitingPlaybook(payload, scope.decisionResponse.workflow).then(function (data) {
           toaster.success({
             body: data.message
           });
           if (scope.submitCallback && typeof scope.submitCallback === 'function') {
             scope.submitCallback();
           }
-        }, function(error) {
+        }, function (error) {
           toaster.error({
             body: error.data.message
           });
-        }).finally(function(){
+        }).finally(function () {
           scope.processing = false;
           if (scope.modal) {
             scope.close('resumed');
@@ -187,23 +188,24 @@
             scope.pendingDecisionFormDisabled = true;
             //scope.playbookResumed = true;
           }
+          scope.disabledField = scope.pendingDecisionFormDisabled || scope.processing;
         });
 
       };
-      
+
       function onChange(value, field) {
         var isObjectExpand = angular.isObject(value) && field.value === value['@id'];
         if (value && !isObjectExpand) {
           field.acceptChange = true;
         }
         if (inputVariableEntity && inputVariableEntity.fields) {
-          $timeout(function() {
+          $timeout(function () {
             inputVariableEntity.evaluateAllFields();
           }, 200);
         }
       }
-      
-      scope.close = function(action){
+
+      scope.close = function (action) {
         scope.$parent.close(action);
       };
 
@@ -220,10 +222,10 @@
               body: 'Manual Input discarded successfully.'
             });
           }, function (error) {
-             toaster.error({
-                body: error.data.message
-              });
-          }).finally(function(){
+            toaster.error({
+              body: error.data.message
+            });
+          }).finally(function () {
             scope.processing = false;
           });
         });
