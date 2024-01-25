@@ -220,7 +220,7 @@
         $limit: ALL_RECORDS_SIZE
       };
       return $resource(API.QUERY + 'tasks').save(queryString, queryBody).$promise.then(function (response) {
-        if (response['hydra:member'].length > 0) {
+        if (response['hydra:member'].length > 0 || response['hydra:member']) {
           $scope.dummyRecordIRI = response['hydra:member'][0]['@id'].replace('/api/3/', '');
           _checkDynamicVariables();
         }
@@ -235,7 +235,7 @@
 
     function _checkDynamicVariables() {
       $resource(API.WORKFLOW + 'api/dynamic-variable/?limit=1000&name=playbook_wizard_config').get({}).$promise.then(function (response) {
-        if (response['hydra:member'].length > 0) {
+        if (response['hydra:member'].length > 0 || response['hydra:member']) {
           _updateDynamicVariable(response['hydra:member'][0].id);
         }
         else {
@@ -421,7 +421,7 @@
     function _init() {
       if (!currentPermissionsService.availablePermission('workflows', 'execute')) {
         toaster.error({
-          body: "You dont have permission to execute the playbooks"
+          body: "You dont have permission to execute the playbook"
         });
         return;
       }
