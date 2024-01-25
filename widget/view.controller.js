@@ -1,3 +1,7 @@
+/* Copyright start
+  MIT License
+  Copyright (c) 2024 Fortinet
+  Copyright end */
 'use strict';
 (function () {
   angular
