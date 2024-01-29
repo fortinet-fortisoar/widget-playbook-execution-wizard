@@ -1,5 +1,9 @@
+<!-- Copyright start
+  MIT License
+  Copyright (c) 2024 Fortinet Inc
+  Copyright end -->
 <link rel="stylesheet" type="text/css"
-    href="widgets/installed/importWizard-1.0.0/widgetAssets/runningPlaybookStyle.css" />
+    href="widgets/installed/playbookExecutionWizard-1.0.0/widgetAssets/runningPlaybookStyle.css" />
 <div class="modal-header">
     <h3 class="modal-title col-md-9">{{playbookTitle}}</h3>
 </div>
@@ -13,7 +17,7 @@
                     <div class="full-height display-table-cell vertical-align-middle">
                         <div class="col-md-6 display-flex" style="justify-content: center">
                             <img class="img-responsive"
-                                src="widgets/installed/cicdConfiguration-1.0.0/images/process.png">
+                                src="widgets/installed/playbookExecutionWizard-1.0.0/widgetAssets/images/start.png">
                         </div>
                         <div class="col-md-6 prerequisites-section padding-bottom-25 padding-left-0">
                             <div class="font-size-30 line-height-1">Welcome</div><br />
@@ -31,7 +35,7 @@
         </div>
     </wz-step>
     <wz-step wz-title="Task Processing" wz-order="2" class="ingestion-modal-padding">
-        <div data-ng-if="loadProcessing" class="display-flex justify-content">
+        <div data-ng-if="loadProcessing && !playbookExecutionFailed" class="display-flex justify-content">
             <div class="margin-left-sm margin-right-sm install-progress-icon">
                 <div class="custom-installing-spinner-content muted-50">
                     <div class="custom-installing-spinner-block">
@@ -47,58 +51,79 @@
             <i class="icon icon-approval margin-right-sm"></i>
             <span>Playbook Executed Successfully ...</span>
         </div>
-        <div class="display-flex full-width overflow-auto solutionpack-wizard-modal-body wz-step-height">
-                <uib-tabset active="activeTab" class="margin-top-11 width-100pt">
-                    <uib-tab index="1" data-ng-click="loadPlaybookData('comments')">
-                        <uib-tab-heading>
-                            <i class="icon icon-history margin-right-sm"></i>Tasks
-                        </uib-tab-heading>
-                        <div class="col-md-12 fade-in-animation">
-                        <div class="display-inline-block padding-bottom-30 width-50">
-                            <!-- Content for the left section -->
-                        </div>
-                        <div class="display-inline-block padding-bottom-30 width-40">
-                            <!-- Content for the right section -->
-                            <ul>
-                                <li data-ng-repeat="comment in commentsContent" class="list-unstyled">
-                                  <hr>
-                                    <div ng-if="!isObject(comment)">
-                                        <i data-ng-if="!isObject(comment)"
-                                            class="text-success icon icon-check margin-right-sm"></i><span
-                                            ng-bind-html="comment | domPurifySanitize"></span>
-                                    </div>
-                                    <div ng-if="isObject(comment)">
-                                        <i data-ng-if="!processing && !pendingInputTabProcessing"></i><span
-                                            class="show-cicd-manual-inputs padding-bottom-65"
-                                            data-playbook-pending-decision data-decision-response="comment"
-                                            modal="false"></span>
-                                    </div>
-                                </li>
-                            </ul>
-                          <hr>
-                        </div>
-                      </div>
-                    </uib-tab>
-                    <uib-tab index="2" data-ng-click="loadPlaybookData('logs')">
-                        <uib-tab-heading>
-                            <i class="icon icon-playbooks margin-right-sm"></i>Detailed Flow
-                        </uib-tab-heading>
-                        <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
-          <div class="show-playbook-execution-logs-container" data-ng-include="'app/components/header/runningPlaybook/runningPlaybook.html'"></div>
+        <div class="margin-bottom-sm margin-top-sm text-center text-danger" data-ng-if="playbookExecutionFailed">
+            <i class="icon icon-failed margin-right-sm"></i>
+            <span>Playbook execution failed. Check playbook detailed flow for more details ...</span>
         </div>
-                    </uib-tab>
-                </uib-tabset>
-            
+        <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
+            <div class="full-height overflow-auto">
+                <div class="display-table fixed-table-layout full-height full-width">
+                    <div class="full-height display-table-cell vertical-align-middle">
+                        <div
+                            class="display-flex full-width overflow-auto solutionpack-wizard-modal-body wz-step-height">
+                            <uib-tabset active="activeTab" class="margin-top-11 width-100pt">
+                                <uib-tab index="1" data-ng-click="loadPlaybookData('comments')">
+                                    <uib-tab-heading>
+                                        <i class="icon icon-history margin-right-sm"></i>Tasks
+                                    </uib-tab-heading>
+
+                                    <div class="col-md-6 display-flex align-items-center">
+                                        <div class="full-width margin-left-120 margin-top-10per">
+                                            <img class="img-responsive"
+                                                src="widgets/installed/cicdConfiguration-1.0.0/widgetAssets/images/task.png">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 prerequisites-section padding-bottom-25">
+                                        <!-- Content for the right section -->
+                                        <ul>
+                                            <li data-ng-repeat="comment in commentsContent" class="list-unstyled">
+                                                <hr class="cicd-hr">
+                                                <div ng-if="!isObject(comment)">
+                                                    <i data-ng-if="!isObject(comment)"
+                                                        class="text-success icon icon-check margin-right-sm"></i><span
+                                                        ng-bind-html="comment | domPurifySanitize"
+                                                        class="break-word custom-markdown-editor"></span>
+                                                </div>
+                                                <div ng-if="isObject(comment)">
+                                                    <i data-ng-if="!processing && !pendingInputTabProcessing"></i><span
+                                                        class="show-cicd-manual-inputs padding-bottom-65"
+                                                        data-playbook-pending-decision data-decision-response="comment"
+                                                        modal="false"></span>
+                                                </div>
+                                            </li>
+                                            <hr class="cicd-hr">
+                                        </ul>
+                                    </div>
+
+                                </uib-tab>
+                                <uib-tab index="2" data-ng-click="loadPlaybookData('logs')">
+                                    <uib-tab-heading>
+                                        <i class="icon icon-playbooks margin-right-sm"></i>Detailed Flow
+                                    </uib-tab-heading>
+                                    <div
+                                        class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
+                                        <div class="show-playbook-execution-logs-container"
+                                            data-ng-include="'app/components/header/runningPlaybook/runningPlaybook.html'">
+                                        </div>
+                                    </div>
+                                </uib-tab>
+                            </uib-tabset>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="ingestion-modal-footer">
             <button type="button" class="btn btn-sm btn-second-primary margin-top-lg margin-left-lg"
                 id="playbook-log-back-btn" data-ng-click="movePrevious()"><i
                     class="fa fa-chevron-left margin-right-sm"></i>Back</button>
             <button type="button" class="btn btn-primary pull-right btn-sm margin-top-lg margin-right-lg"
-                data-ng-click="moveFinishNext()"  data-ng-disabled="loadProcessing" id="playbook-log-next-btn">Next<i
+                data-ng-click="moveFinishNext()" data-ng-disabled="loadProcessing" id="playbook-log-next-btn">Next<i
                     class="fa fa-chevron-right margin-left-sm"></i>
             </button>
         </div>
+
     </wz-step>
     <wz-step wz-title="Finish" wz-order="3" class="ingestion-modal-padding wizard-first-step">
         <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
@@ -107,12 +132,13 @@
                     <div class="full-height display-table-cell vertical-align-middle">
                         <div class="col-md-6 display-flex" style="justify-content: center">
                             <img class="img-responsive"
-                                src="widgets/installed/cicdConfiguration-1.0.0/images/finish.png">
+                                src="widgets/installed/cicdConfiguration-1.0.0/widgetAssets/images/finish.png">
+
                         </div>
                         <div class="col-md-6 prerequisites-section padding-bottom-25 padding-left-0">
                             <div class="font-size-40 line-height-1">You are all set!</div><br />
                             <div class="padding-right-30 margin-top-sm max-width-450px">
-                             <p class="font-size-14 margin-bottom-0"
+                                <p class="font-size-14 margin-bottom-0"
                                     data-ng-bind-html="playbookResult.playbook_result"></p>
                             </div>
                         </div>

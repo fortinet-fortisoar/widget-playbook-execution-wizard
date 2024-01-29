@@ -1,48 +1,61 @@
 <!-- Copyright start
-  Copyright (C) 2008 - 2022 Fortinet Inc.
-  All rights reserved.
-  FORTINET CONFIDENTIAL & FORTINET PROPRIETARY SOURCE CODE
+  MIT License
+  Copyright (c) 2024 Fortinet Inc
   Copyright end -->
-<form class="noMargin pending-decision-dialog" data-ng-class="{'active-border': !modal}" name="pendingDecisionForm" novalidate>
+<form class="margin-top-negative-20 noMargin pending-decision-dialog" name="pendingDecisionForm" novalidate>
   <div data-ng-if="!playbookResumed">
     <div class="modal-header">
-      <h5 class="modal-title" data-ng-class="{'pending-decision-modal-title pull-left':modal}">{{decisionResponse.input.schema.title}}</h5>
-      <button data-ng-if="modal" type="button" class="close pull-right" data-ng-click="close()" data-dismiss="modal" aria-label="Close" id="close-pending-decision-btn">
+      <h5 class="modal-title" data-ng-class="{'pending-decision-modal-title pull-left':modal}">
+        {{decisionResponse.input.schema.title}}</h5>
+      <button data-ng-if="modal" type="button" class="close pull-right" data-ng-click="close()" data-dismiss="modal"
+        aria-label="Close" id="close-pending-decision-btn">
         <div aria-hidden="true" class="version-button">+</div>
       </button>
     </div>
     <div class="modal-body">
       <div class="row">
         <div class="col-md-12">
-           <div data-ng-if="error === ''">
-            <div class="pending-decision-description" data-cs-markdown-editor data-mode="'view'" data-ng-model="decisionResponse.input.schema.description" data-form-name="'pendingDecisionForm'"></div>
+          <div data-ng-if="error === ''">
+            <div class="pending-decision-description" data-cs-markdown-editor data-mode="'view'"
+              data-ng-model="decisionResponse.input.schema.description" data-form-name="'pendingDecisionForm'"></div>
             <cs-spinner data-ng-show="processing" class="state-wait" data-show-background="true"></cs-spinner>
-            <div data-ng-if="decisionResponse.type === 'InputBased' && decisionResponse.input.schema.inputVariables.length > 0 && !processing">
-              <div class="form-group" data-ng-repeat="(fieldName, field) in fieldObject" data-ng-class="{ 'has-error': pendingDecisionForm[field.name].$invalid && pendingDecisionForm[field.name].$touched }" data-ng-if="field.visible">
+            <div
+              data-ng-if="decisionResponse.type === 'InputBased' && decisionResponse.input.schema.inputVariables.length > 0 && !processing">
+              <div class="form-group" data-ng-repeat="(fieldName, field) in fieldObject"
+                data-ng-class="{ 'has-error': pendingDecisionForm[field.name].$invalid && pendingDecisionForm[field.name].$touched }"
+                data-ng-if="field.visible">
                 <div class="clearfix">
-                  <label for="pendingDecisionForm-{{ field.name }}" class="control-label">{{ field.title }}<span class="text-danger" data-ng-show="field.required">&nbsp;*</span>&nbsp;<span data-ng-show="field.tooltip" data-uib-tooltip="{{field.tooltip}}"
+                  <label for="pendingDecisionForm-{{ field.name }}" class="control-label">{{ field.title }}<span
+                      class="text-danger" data-ng-show="field.required">&nbsp;*</span>&nbsp;<span
+                      data-ng-show="field.tooltip" data-uib-tooltip="{{field.tooltip}}"
                       data-tooltip-append-to-body="true"><i class="icon icon-information"></i></span></label>
                 </div>
-                <div data-cs-field="field" data-disabled="pendingDecisionFormDisabled || processing" data-ng-model="field.value" data-change-method="onChange" data-form-name="'pendingDecisionForm'"></div>
+                <div data-cs-field="field" data-disabled="disabledField" data-ng-model="field.value"
+                  data-change-method="onChange" data-form-name="'pendingDecisionForm'"></div>
                 <div data-cs-messages="pendingDecisionForm[field.name]" data-field="field"></div>
               </div>
             </div>
           </div>
           <div data-ng-if="error !== ''" class="text-danger font-size-12" data-ng-bind-html="error"></div>
-         </div>
         </div>
       </div>
-      <div class="modal-footer padding-left-lg"  data-ng-if="!playbookResumed">
-        <button data-ng-disabled="!playbookExecutePermission || error || processing || pendingDecisionFormDisabled" data-ng-repeat="option in decisionResponse.response_mapping.options" type="button" data-ng-class="{'btn-primary': option.primary, 'btn-default':!option.primary}" class="btn btn-sm margin-right-2"
-          data-ng-click="submitDecision(option)" id="submit-pending-decision-btn-{{$index}}">{{option.option}}</button>
-      </div>
     </div>
-    <div class="modal-footer-extended padding-left-lg" data-ng-if="modal && (playbookReadPermission && !processing)">
-      <div class="pb-execution-history-link">
-        <a class="muted playbook-link pull-left display-inline-block" href="?runningpb={{decisionResponse.workflow}}" target="_blank" rel="noopener noreferrer">View Detailed Playbook
-          Execution Flow <i class="fa fa-external-link"></i> </a>
-          <a class="text-danger delete-link pull-right display-inline-block" data-ng-if="securityUpdatePermission" ng-click="deletePendingDecision(decisionResponse.id)"><span class="fa fa-trash"></span>&nbsp; Delete This Manual Input</a>
-          <div class="clear-both"></div>
-      </div>
+    <div class="modal-footer padding-left-lg" data-ng-if="!playbookResumed">
+      <button data-ng-disabled="!playbookExecutePermission || error || disabledField"
+        data-ng-repeat="option in decisionResponse.response_mapping.options" type="button"
+        data-ng-class="{'btn-primary': option.primary, 'btn-default':!option.primary}" class="btn btn-sm margin-right-2"
+        data-ng-click="submitDecision(option)" id="submit-pending-decision-btn-{{$index}}">{{option.option}}</button>
     </div>
+  </div>
+  <div class="modal-footer-extended padding-left-lg" data-ng-if="modal && (playbookReadPermission && !processing)">
+    <div class="pb-execution-history-link">
+      <a class="muted playbook-link pull-left display-inline-block" href="?runningpb={{decisionResponse.workflow}}"
+        target="_blank" rel="noopener noreferrer">View Detailed Playbook
+        Execution Flow <i class="fa fa-external-link"></i> </a>
+      <a class="text-danger delete-link pull-right display-inline-block" data-ng-if="securityUpdatePermission"
+        ng-click="deletePendingDecision(decisionResponse.id)"><span class="fa fa-trash"></span>&nbsp; Delete This Manual
+        Input</a>
+      <div class="clear-both"></div>
+    </div>
+  </div>
 </form>

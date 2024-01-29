@@ -1,3 +1,7 @@
+/* Copyright start
+  MIT License
+  Copyright (c) 2024 Fortinet Inc
+  Copyright end */
 'use strict';
 (function () {
   angular
@@ -23,9 +27,12 @@
     $scope.parent_wf_id = '';
     $scope.awaitingStep = undefined;
     $scope.pendingInputTabProcessing = false;
+    $scope.isPlaybookAwaiting = false;
+    $scope.isPlaybookActive = false;
     $scope.taskId = undefined;
     $scope.awaitingStepInput = undefined;
     $scope.loadProcessing = false;
+    $scope.playbookExecutionFailed = false;
     $scope.loadPlaybookData = loadPlaybookData;
     $state.params.tab = 'comments';
     $scope.activeTab = $state.params.tab === 'logs' ? 2 : 1;
@@ -77,6 +84,12 @@
                 _getPendingInputDetails(resp.result.wfinput_id);
               });
             }
+          });
+        }
+        if (data.status == 'failed') {
+          $resource(API.WORKFLOW + 'api/workflows/' + data.instance_ids + '/?').get({}).$promise.then(function (response) {
+            $scope.playbookExecutionFailed = true;
+            console.log(data.result["Error message"]);
           });
         }
         if (data.status == 'finished') {
@@ -131,17 +144,61 @@
     }
 
     function moveNext() {
-      loadPlaybookData($state.params.tab);
-      if ($scope.jsonToGrid) {
-        _checkTaskRecord();
-        executeGridPlaybook($scope.config.metadata.playbook, $scope.triggerStep);
-      }
-      else {
-        $scope.dummyRecordIRI = $scope.config.metadata.getSelectedRows['@id'].replace('/api/3/', '');
-        $rootScope.pendingDecisionModalOpen = true;
-        commentWebsocket();
-        executeGridPlaybook($scope.config.metadata.playbook, $scope.triggerStep);
-      }
+      var awaitingPlaybookReqBody = {
+        method: 'POST',
+        url: API.WORKFLOW + 'api/workflows/log_list/?format=json&limit=10&offset=0&ordering=-modified&page=1&search=' + $scope.playbookName + '&status=awaiting&tags_exclude=system',
+        headers: {
+          'Accept': 'application/json, text/plain, */*'
+        },
+        data: {}
+      };
+      var activePlaybookReqBody = {
+        method: 'POST',
+        url: API.WORKFLOW + 'api/workflows/log_list/?format=json&limit=10&offset=0&ordering=-modified&page=1&search=' + $scope.playbookName + '&status=active&tags_exclude=system',
+        headers: {
+          'Accept': 'application/json, text/plain, */*'
+        },
+        data: {}
+      };
+      $http(awaitingPlaybookReqBody).then(function (awaitingPlaybookResponse) {
+        if (awaitingPlaybookResponse.data['hydra:member'].length > 0) {
+          $scope.isPlaybookAwaiting = true;
+          toaster.error({
+            body: "Playbook is in awaiting state"
+          });
+        }
+        if ($scope.isPlaybookAwaiting) {
+          $http(activePlaybookReqBody).then(function (activePlaybookResponse) {
+            if (activePlaybookResponse.data['hydra:member'].length > 0) {
+              $scope.isPlaybookActive = true;
+              toaster.error({
+                body: "Playbook is in active state"
+              });
+            }
+          });
+        }
+        else {
+          if ($scope.isPlaybookAwaiting || $scope.isPlaybookActive) {
+            $scope.isPlaybookAwaiting = false;
+            $scope.isPlaybookActive = false;
+            movePrevious();
+          }
+          else {
+            loadPlaybookData($state.params.tab);
+            if ($scope.jsonToGrid) {
+              _checkTaskRecord().then(function () {
+                executeGridPlaybook($scope.payload.playbookDetails, $scope.triggerStep);
+              });
+            }
+            else {
+              $scope.dummyRecordIRI = $scope.payload.selectedRecord['@id'].replace('/api/3/', '');
+              $rootScope.pendingDecisionModalOpen = true;
+              commentWebsocket();
+              executeGridPlaybook($scope.payload.playbookDetails, $scope.triggerStep);
+            }
+          }
+        }
+      });
     }
 
     function loadPlaybookData(tab) {
@@ -151,14 +208,14 @@
     }
 
     function _checkTaskRecord() {
-      queryValue = $scope.config.metadata.getSelectedRows[0].new_branch + '-' + $scope.config.metadata.getSelectedRows[0].summary;
+      var deferred = $q.defer();
       var queryBody = {
         "logic": "AND",
         "filters": [
           {
             "field": "name",
             "operator": "eq",
-            "value": queryValue,
+            "value": $scope.payload.selectedRecord[0].new_branch + '-' + $scope.payload.selectedRecord[0].summary,
             "type": "primitive"
           }
         ]
@@ -174,7 +231,10 @@
         else {
           _createDummyRecord();
         }
+      }, function (error) {
+        deferred.reject(error);
       });
+      return deferred.promise;
     }
 
     function _checkDynamicVariables() {
@@ -242,12 +302,12 @@
           'Accept': 'application/json, text/plain, */*'
         },
         data: {
-          "name": $scope.config.metadata.getSelectedRows[0].new_branch + '-' + $scope.config.metadata.getSelectedRows[0].summary,
+          "name": $scope.payload.selectedRecord[0].new_branch + '-' + $scope.payload.selectedRecord[0].summary,
           "type": "/api/3/picklists/6d113f01-123a-4c78-b68c-029e16df9b8b",
           "priority": "/api/3/picklists/539083a6-01f6-4ff9-a588-778cfdad4671",
           "status": "/api/3/picklists/7669725a-28cc-4b19-98a3-9ca71e0f88f4",
           "conflict": false,
-          "body": $scope.config.metadata.getSelectedRows[0].description
+          "body": $scope.payload.selectedRecord[0].description
         }
       };
       $http(reqBody).then(function (response) {
@@ -310,18 +370,18 @@
                 playbook: playbook,
                 entity: angular.copy(entity),
                 rows: function () {
-                  var rows = $scope.config.metadata.getSelectedRows;
+                  var rows = $scope.payload.selectedRecord;
                   return rows;
                 }
               }
             });
             modalInstance.result.then(function (result) {
-              triggerPlaybookWithRecords(playbook, triggerStep.arguments.resources[0], $scope.config.metadata.getSelectedRows, result).then(function (workflowID) {
+              triggerPlaybookWithRecords(playbook, triggerStep.arguments.resources[0], $scope.payload.selectedRecord, result).then(function (workflowID) {
                 deferred.resolve();
               });
             });
           } else {
-            triggerPlaybookWithRecords(playbook, triggerStep.arguments.resources[0], $scope.config.metadata.getSelectedRows, { inputVariables: {} }).then(function (workflowID) {
+            triggerPlaybookWithRecords(playbook, triggerStep.arguments.resources[0], $scope.payload.selectedRecord, { inputVariables: {} }).then(function (workflowID) {
               deferred.resolve();
             });
           }
@@ -364,15 +424,18 @@
 
     function _init() {
       if (!currentPermissionsService.availablePermission('workflows', 'execute')) {
+        toaster.error({
+          body: "You dont have permission to execute the playbook"
+        });
         return;
       }
-      if (!CommonUtils.isObject($scope.config.metadata.getSelectedRows)) {
+      if (!CommonUtils.isObject($scope.payload.selectedRecord)) {
         $scope.jsonToGrid = true;
       }
-      $scope.triggerStep = _.find($scope.config.metadata.playbook.steps, function (item) { return item.uuid === $filter('getEndPathName')($scope.config.metadata.playbook.triggerStep); });
-      $scope.playbookDetails = $scope.triggerStep.description || $scope.config.metadata.playbook.description;
-      $scope.playbookTitle = $scope.triggerStep.arguments.title || $scope.config.metadata.playbook.name;
-
+      $scope.triggerStep = _.find($scope.payload.playbookDetails.steps, function (item) { return item.uuid === $filter('getEndPathName')($scope.payload.playbookDetails.triggerStep); });
+      $scope.playbookDetails = $scope.triggerStep.description || $scope.payload.playbookDetails.description;
+      $scope.playbookTitle = $scope.triggerStep.arguments.title || $scope.payload.playbookDetails.name;
+      $scope.playbookName = ($scope.payload.playbookDetails.name).replace(/ /g, '+');
     }
     _init();
   }

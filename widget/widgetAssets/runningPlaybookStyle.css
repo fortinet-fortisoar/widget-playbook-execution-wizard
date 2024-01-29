@@ -1,3 +1,7 @@
+/* Copyright start
+  MIT License
+  Copyright (c) 2024 Fortinet Inc
+  Copyright end */
 .show-playbook-execution-logs-container .canvas-container{
 	height: calc(100vh - 278px);    
 }
@@ -34,4 +38,8 @@
 
 .show-cicd-manual-inputs .modal-body{
   height: auto;
+}
+
+.cicd-hr{
+    border-top: 2px solid #4676b2;
 }
