@@ -144,61 +144,17 @@
     }
 
     function moveNext() {
-      var awaitingPlaybookReqBody = {
-        method: 'POST',
-        url: API.WORKFLOW + 'api/workflows/log_list/?format=json&limit=10&offset=0&ordering=-modified&page=1&search=' + $scope.playbookName + '&status=awaiting&tags_exclude=system',
-        headers: {
-          'Accept': 'application/json, text/plain, */*'
-        },
-        data: {}
-      };
-      var activePlaybookReqBody = {
-        method: 'POST',
-        url: API.WORKFLOW + 'api/workflows/log_list/?format=json&limit=10&offset=0&ordering=-modified&page=1&search=' + $scope.playbookName + '&status=active&tags_exclude=system',
-        headers: {
-          'Accept': 'application/json, text/plain, */*'
-        },
-        data: {}
-      };
-      $http(awaitingPlaybookReqBody).then(function (awaitingPlaybookResponse) {
-        if (awaitingPlaybookResponse.data['hydra:member'].length > 0) {
-          $scope.isPlaybookAwaiting = true;
-          toaster.error({
-            body: "Playbook is in awaiting state"
-          });
-        }
-        if ($scope.isPlaybookAwaiting) {
-          $http(activePlaybookReqBody).then(function (activePlaybookResponse) {
-            if (activePlaybookResponse.data['hydra:member'].length > 0) {
-              $scope.isPlaybookActive = true;
-              toaster.error({
-                body: "Playbook is in active state"
-              });
-            }
-          });
-        }
-        else {
-          if ($scope.isPlaybookAwaiting || $scope.isPlaybookActive) {
-            $scope.isPlaybookAwaiting = false;
-            $scope.isPlaybookActive = false;
-            movePrevious();
-          }
-          else {
-            loadPlaybookData($state.params.tab);
-            if ($scope.jsonToGrid) {
-              _checkTaskRecord().then(function () {
-                executeGridPlaybook($scope.payload.playbookDetails, $scope.triggerStep);
-              });
-            }
-            else {
-              $scope.dummyRecordIRI = $scope.payload.selectedRecord['@id'].replace('/api/3/', '');
-              $rootScope.pendingDecisionModalOpen = true;
-              commentWebsocket();
-              executeGridPlaybook($scope.payload.playbookDetails, $scope.triggerStep);
-            }
-          }
-        }
-      });
+      loadPlaybookData($state.params.tab);
+      if ($scope.jsonToGrid) {
+        _checkTaskRecord();
+        executeGridPlaybook($scope.payload.playbookDetails, $scope.triggerStep);
+      }
+      else {
+        $scope.dummyRecordIRI = $scope.payload.selectedRecord['@id'].replace('/api/3/', '');
+        $rootScope.pendingDecisionModalOpen = true;
+        commentWebsocket();
+        executeGridPlaybook($scope.payload.playbookDetails, $scope.triggerStep);
+      }
     }
 
     function loadPlaybookData(tab) {
@@ -208,7 +164,6 @@
     }
 
     function _checkTaskRecord() {
-      var deferred = $q.defer();
       var queryBody = {
         "logic": "AND",
         "filters": [
@@ -231,10 +186,7 @@
         else {
           _createDummyRecord();
         }
-      }, function (error) {
-        deferred.reject(error);
       });
-      return deferred.promise;
     }
 
     function _checkDynamicVariables() {
@@ -284,7 +236,7 @@
       };
       $http(reqBody).then(function (response) {
         if (response.status === 200) {
-          _checkDynamicVariables()
+          _checkDynamicVariables();
         }
         defer.resolve(response);
       }, function (error) {
@@ -370,8 +322,12 @@
                 playbook: playbook,
                 entity: angular.copy(entity),
                 rows: function () {
-                  var rows = $scope.payload.selectedRecord;
-                  return rows;
+                  if (!$scope.jsonToGrid) {
+                    return _.map([$scope.payload.selectedRecord], obj => obj);
+                  }
+                  else {
+                    return $scope.payload.selectedRecord;
+                  }
                 }
               }
             });
@@ -393,7 +349,7 @@
     function triggerPlaybookWithRecords(playbook, module, selectedRows, manualTriggerInput) {
       var apiNoTrigger = API.MANUAL_TRIGGER + playbook.uuid;
       if (!$scope.jsonToGrid) {
-        var selectedRows = _.map([selectedRows], obj => obj)
+        var selectedRows = _.map([selectedRows], obj => obj);
       }
       var env = {
         'request': {
