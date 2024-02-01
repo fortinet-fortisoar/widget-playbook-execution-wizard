@@ -300,14 +300,6 @@
       });
     }
 
-    $scope.getSelectedRows = function () {
-      return $scope.gridApi.selection.getSelectedRows();
-    };
-
-    function setGridApi(gridApi) {
-      $scope.gridApi = gridApi;
-    }
-
     function executeGridPlaybook(playbook, triggerStep) {
       var deferred = $q.defer();
       $resource(API.BASE + API.WORKFLOWS + playbook.uuid).get({ '$relationships': true }).$promise.then(function (playbook) {
