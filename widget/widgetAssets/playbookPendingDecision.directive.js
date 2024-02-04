@@ -1,7 +1,3 @@
-/* Copyright start
-  MIT License
-  Copyright (c) 2024 Fortinet Inc
-  Copyright end */
 'use strict';
 
 (function () {
@@ -9,13 +5,13 @@
     .module('cybersponse')
     .directive('playbookPendingDecision', playbookPendingDecision);
 
-  playbookPendingDecision.$inject = ['Field', '$filter', 'picklistsService', 'playbookService', 'toaster', '_', 'currentPermissionsService', '$interpolate',
+  playbookPendingDecision.$inject = ['Field', '$filter', 'picklistsService', 'playbookService', 'toaster', '_', '$interpolate',
     'currentDateMinusService', 'addToCurrentDateService', 'convertToRelativeDateService', 'getRelativeDateService', 'usersService', 'FormEntityService',
-    'CommonUtils', 'Entity', 'ModalService', '$timeout'];
+    'CommonUtils', 'Entity', '$timeout'];
 
-  function playbookPendingDecision(Field, $filter, picklistsService, playbookService, toaster, _, currentPermissionsService, $interpolate,
+  function playbookPendingDecision(Field, $filter, picklistsService, playbookService, toaster, _, $interpolate,
     currentDateMinusService, addToCurrentDateService, convertToRelativeDateService, getRelativeDateService, usersService, FormEntityService,
-    CommonUtils, Entity, ModalService, $timeout) {
+    CommonUtils, Entity, $timeout) {
     var directive = {
       restrict: 'A',
       scope: {
@@ -25,7 +21,7 @@
         unauthenticated: '=?'
       },
       controller: 'BaseCtrl',
-      templateUrl: 'widgets/installed/importWizard-1.0.0/widgetAssets/playbookPendingDecision.html',
+      templateUrl: 'widgets/installed/playbookExecutionWizard-1.0.0/widgetAssets/playbookPendingDecision.html',
       link: link
     };
 
@@ -33,19 +29,12 @@
       scope.processing = false;
       scope.playbookResumed = false;
       scope.pendingDecisionFormDisabled = false;
-      scope.disabledField = false;
       scope.error = '';
-      if (!scope.unauthenticated) {
-        scope.playbookExecutePermission = currentPermissionsService.availablePermission('workflows', 'execute');
-        scope.playbookReadPermission = currentPermissionsService.availablePermission('workflows', 'read');
-        scope.securityUpdatePermission = currentPermissionsService.availablePermission('security', 'update');
-      } else {
-        scope.playbookExecutePermission = true;
-        scope.playbookReadPermission = true;
-        scope.securityUpdatePermission = true;
-      }
+      scope.playbookExecutePermission = true;
+      scope.playbookReadPermission = true;
+      scope.securityUpdatePermission = true;
+      //}
       scope.onChange = onChange;
-      scope.deletePendingDecision = deletePendingDecision;
       var entity;
       var inputVariableEntity;
       var currentUser = usersService.getCurrentUser();
@@ -190,11 +179,9 @@
             scope.close('resumed');
           } else {
             scope.pendingDecisionFormDisabled = true;
-            //scope.playbookResumed = true;
           }
           scope.disabledField = scope.pendingDecisionFormDisabled || scope.processing;
         });
-
       };
 
       function onChange(value, field) {
@@ -208,35 +195,7 @@
           }, 200);
         }
       }
-
-      scope.close = function (action) {
-        scope.$parent.close(action);
-      };
-
-      function deletePendingDecision(pendingDecisionId) {
-        var message = 'Discarding the manual input is an irreversible action and will remove this input from the queue. Do you want to proceed?';
-        ModalService.confirm(message).then(function (result) {
-          if (!result) {
-            return;
-          }
-          scope.processing = true;
-          playbookService.deletePendingDecision(pendingDecisionId).then(function () {
-            scope.close();
-            toaster.success({
-              body: 'Manual Input discarded successfully.'
-            });
-          }, function (error) {
-            toaster.error({
-              body: error.data.message
-            });
-          }).finally(function () {
-            scope.processing = false;
-          });
-        });
-      }
-
     }
-
     return directive;
   }
 })();
