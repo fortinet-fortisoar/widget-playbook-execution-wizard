@@ -8,9 +8,9 @@
     .module('cybersponse')
     .controller('playbookExecutionWizard100Ctrl', playbookExecutionWizard100Ctrl);
 
-  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope'];
+  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope', '$timeout'];
 
-  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope) {
+  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope, $timeout) {
     $scope.showDataWizard = false;
     $scope.close = close;
     $scope.moveNext = moveNext;
@@ -309,6 +309,8 @@
             var modalInstance = $uibModal.open({
               templateUrl: 'app/components/modals/inputVariables.html',
               controller: 'InputVariablesCtrl',
+              windowClass: 'pb-exec-wizard-input-prompt-modal no-animation',
+              animation: false,
               backdrop: 'static',
               resolve: {
                 playbook: playbook,
@@ -322,6 +324,11 @@
                   }
                 }
               }
+            });
+            $timeout(function() {
+              var widgetModalElement = document.querySelector('.modal-backdrop');
+              var widgetModalZindex = parseInt(widgetModalElement.style.getPropertyValue('z-index'), 10);
+              widgetModalElement.setAttribute('style', 'z-index:' + (widgetModalZindex + 20));
             });
             modalInstance.result.then(function (result) {
               triggerPlaybookWithRecords(playbook, triggerStep.arguments.resources[0], $scope.payload.selectedRecord, result).then(function (workflowID) {

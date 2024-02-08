@@ -36,6 +36,10 @@
   height: inherit !important;
 }
 
+.pb-exec-wizard-input-prompt-modal {
+  z-index: 1082 !important;
+}
+
 .show-cicd-manual-inputs .modal-body{
   height: auto;
 }
