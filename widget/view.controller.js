@@ -23,7 +23,7 @@
     $scope.commentsContent = [];
     $scope.manualInputContent = [];
     $scope.manualInputResult = [];
-    $scope.dummyRecordIRI = '';
+    $scope.taskRecordIRI = '';
     $scope.parent_wf_id = '';
     $scope.awaitingStep = undefined;
     $scope.pendingInputTabProcessing = false;
@@ -103,7 +103,7 @@
 
     function commentWebsocket() {
       $scope.commentsContent = [];
-      var moduleID = $scope.dummyRecordIRI;
+      var moduleID = $scope.taskRecordIRI;
       websocketService.subscribe(moduleID + '/comments', function (data) {
         //do nothing in case of notification recieved from same websocketSession. As it is handled gracefully.
         if (data.sourceWebsocketId !== websocketService.getWebsocketSessionId()) {
@@ -117,11 +117,11 @@
     }
 
     $scope.$on('$destroy', function () {
-      $rootScope.pendingDecisionModalOpen = false;
       if (subscription) {
         websocketService.unsubscribe(subscription);
       }
       if (commentSubscription) {
+        $rootScope.pendingDecisionModalOpen = false;
         websocketService.unsubscribe(commentSubscription);
       }
     });
@@ -150,7 +150,7 @@
         executeGridPlaybook($scope.payload.playbookDetails, $scope.triggerStep);
       }
       else {
-        $scope.dummyRecordIRI = $scope.payload.selectedRecord['@id'].replace('/api/3/', '');
+        $scope.taskRecordIRI = $scope.payload.selectedRecord['@id'].replace('/api/3/', '');
         $rootScope.pendingDecisionModalOpen = true;
         commentWebsocket();
         executeGridPlaybook($scope.payload.playbookDetails, $scope.triggerStep);
@@ -164,14 +164,21 @@
     }
 
     function _checkTaskRecord() {
+      var defer = $q.defer();
       var queryBody = {
         "logic": "AND",
         "filters": [
           {
             "field": "name",
             "operator": "eq",
-            "value": $scope.payload.selectedRecord[0].new_branch + '-' + $scope.payload.selectedRecord[0].summary,
+            "value": $scope.payload.selectedRecord[0].uuid,
             "type": "primitive"
+          },
+          {
+            "type": "object",
+            "field": "status",
+            "operator": "neq",
+            "value": "/api/3/picklists/343f4b67-e929-4205-bf95-ba5b70545fed"
           }
         ]
       };
@@ -179,74 +186,28 @@
         $limit: ALL_RECORDS_SIZE
       };
       return $resource(API.QUERY + 'tasks').save(queryString, queryBody).$promise.then(function (response) {
-        if (response['hydra:member'].length > 0 || response['hydra:member']) {
-          $scope.dummyRecordIRI = response['hydra:member'][0]['@id'].replace('/api/3/', '');
-          _checkDynamicVariables();
-        }
-        else {
-          _createDummyRecord();
-        }
-      });
-    }
-
-    function _checkDynamicVariables() {
-      $resource(API.WORKFLOW + 'api/dynamic-variable/?limit=1000&name=playbook_wizard_config').get({}).$promise.then(function (response) {
-        if (response['hydra:member'].length > 0 || response['hydra:member']) {
-          _updateDynamicVariable(response['hydra:member'][0].id);
-        }
-        else {
-          _createDynamicVariables();
-        }
-      });
-    }
-
-    function _updateDynamicVariable(id) {
-      var defer = $q.defer();
-      var url = API.WORKFLOW + 'api/dynamic-variable/' + id + '/?format=json';
-      var reqBody = {
-        "id": id,
-        "name": "playbook_wizard_config",
-        'value': '/api/3/' + $scope.dummyRecordIRI,
-        'default_value': '/api/3/' + $scope.dummyRecordIRI
-      };
-      $http.put(url, reqBody).then(function (response) {
-        if (response.status === 200) {
+        if (response['hydra:member'] && response['hydra:member'].length > 0) {
+          $scope.taskRecordIRI = response['hydra:member'][0]['@id'].replace('/api/3/', '');
           commentWebsocket();
         }
-        defer.resolve(response);
-      }, function (error) {
-        defer.reject(error);
-      });
-      return defer.promise;
-    }
-
-    function _createDynamicVariables() {
-      var defer = $q.defer();
-      var reqBody = {
-        method: 'POST',
-        url: API.WORKFLOW + 'api/dynamic-variable/?format=json',
-        headers: {
-          'Accept': 'application/json, text/plain, */*'
-        },
-        data: {
-          'name': 'playbook_wizard_config',
-          'value': '/api/3/' + $scope.dummyRecordIRI,
-          'default_value': '/api/3/' + $scope.dummyRecordIRI
-        }
-      };
-      $http(reqBody).then(function (response) {
-        if (response.status === 200) {
-          _checkDynamicVariables();
+        else {
+          _createTaskRecord();
         }
         defer.resolve(response);
       }, function (error) {
         defer.reject(error);
       });
-      return defer.promise;
     }
 
-    function _createDummyRecord() {
+    function _createTaskRecord() {
       var defer = $q.defer();
+      var tableRows = '| Key | Value | \n| --- | --- |';
+      for (var key in $scope.payload.selectedRecord[0]) {
+        if ($scope.payload.selectedRecord[0].hasOwnProperty(key)) {
+          var value = $scope.payload.selectedRecord[0][key];
+          tableRows += '\n|' + key + '|' + value + '|';
+        }
+      }
       var reqBody = {
         method: 'POST',
         url: API.BASE + 'tasks',
@@ -254,7 +215,8 @@
           'Accept': 'application/json, text/plain, */*'
         },
         data: {
-          "name": $scope.payload.selectedRecord[0].new_branch + '-' + $scope.payload.selectedRecord[0].summary,
+          "name": $scope.payload.selectedRecord[0].uuid,
+          "description": tableRows,
           "type": "/api/3/picklists/6d113f01-123a-4c78-b68c-029e16df9b8b",
           "priority": "/api/3/picklists/539083a6-01f6-4ff9-a588-778cfdad4671",
           "status": "/api/3/picklists/7669725a-28cc-4b19-98a3-9ca71e0f88f4",
@@ -264,8 +226,8 @@
       };
       $http(reqBody).then(function (response) {
         if (response.status === 201) {
-          $scope.dummyRecordIRI = response.data['@id'].replace('/api/3/', '');
-          _checkDynamicVariables();
+          $scope.taskRecordIRI = response.data['@id'].replace('/api/3/', '');
+          commentWebsocket();
         }
         defer.resolve(response);
       }, function (error) {
