@@ -71,7 +71,6 @@
         if (data.sourceWebsocketId !== websocketService.getWebsocketSessionId()) {
           if ($scope.taskId && data.task_id && data.task_id === $scope.taskId && data.parent_wf === 'null') {
             angular.element(document.querySelector("[name='solutionpackWizard']").querySelector("[data-ng-controller='RunningPlaybookCtl']")).scope().params.srchBox = data.instance_ids;
-            document.querySelector("[name='solutionpackWizard']").getElementsByClassName("executed-pb-filter-container")[0].style.display = 'none';
             WizardHandler.wizard('solutionpackWizard').next();
             $scope.taskId = undefined;
           }
@@ -287,7 +286,7 @@
                 }
               }
             });
-            $timeout(function() {
+            $timeout(function () {
               var widgetModalElement = document.querySelector('.modal-backdrop');
               var widgetModalZindex = parseInt(widgetModalElement.style.getPropertyValue('z-index'), 10);
               widgetModalElement.setAttribute('style', 'z-index:' + (widgetModalZindex + 20));
