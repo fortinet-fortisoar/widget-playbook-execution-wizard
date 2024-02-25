@@ -6,16 +6,15 @@
     "published_date": 1703148258,
     "metadata": {
         "description": "Playbook Execution Wizard",
-        "help_online": "https:\/\/github.com\/fortinet-fortisoar\/widget-playbook-execution-wizard\/blob\/release\/1.0.0\/README.md",
+        "help_online": "https://github.com/fortinet-fortisoar/widget-playbook-execution-wizard/blob/release/1.0.0/README.md",
         "snapshots": [],
         "pages": [],
         "certified": "Yes",
-        "publisher": null,
+        "publisher": "Fortinet",
         "compatibility": [
             "7.4.1"
         ],
         "standalone": true,
         "windowClass": "Full Width"
-    },
-    "development": false
+    }
 }
