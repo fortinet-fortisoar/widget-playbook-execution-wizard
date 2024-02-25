@@ -8,11 +8,11 @@
     <h3 class="modal-title col-md-9">{{playbookTitle}}</h3>
 </div>
 
-<wizard on-finish="close()" indicators-position="top" class="cs-wizard ingestion-steps solutionpack-wizard-steps"
+<wizard on-finish="close()" indicators-position="top" class="cs-wizard ingestion-steps cicd-solutionpack-wizard-steps"
     name="solutionpackWizard">
     <wz-step wz-title="Start" wz-order="1" class="ingestion-modal-padding wizard-first-step">
         <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
-            <div class="full-height overflow-auto">
+            <div class="overflow-auto">
                 <div class="display-table fixed-table-layout full-height full-width">
                     <div class="full-height display-table-cell vertical-align-middle">
                         <div class="col-md-6 display-flex" style="justify-content: center">
@@ -56,7 +56,7 @@
             <span>Playbook execution failed. Check playbook detailed flow for more details ...</span>
         </div>
         <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
-            <div class="full-height overflow-auto">
+            <div class="overflow-auto">
                 <div class="display-table fixed-table-layout full-height full-width">
                     <div class="full-height display-table-cell vertical-align-middle">
                         <div
@@ -82,19 +82,20 @@
                                                     <i data-ng-if="!isObject(comment)"
                                                         class="text-success icon icon-check margin-right-sm"></i><span
                                                         ng-bind-html="comment | domPurifySanitize"
+                                                        id="{{ 'comment' + $index }}"
                                                         class="break-word custom-markdown-editor"></span>
                                                 </div>
                                                 <div ng-if="isObject(comment)">
                                                     <i data-ng-if="!processing && !pendingInputTabProcessing"></i><span
                                                         class="show-cicd-manual-inputs padding-bottom-65"
-                                                        data-playbook-pending-decision data-decision-response="comment"
-                                                        modal="false"></span>
+                                                        id="{{ 'comment' + $index }}" data-playbook-pending-decision
+                                                        data-decision-response="comment" modal="false"></span>
                                                 </div>
                                             </li>
                                             <hr class="cicd-hr">
                                         </ul>
+                                        <div id="CICDBottomAnchor" class="height-20 padding-bottom-65"></div>
                                     </div>
-
                                 </uib-tab>
                                 <uib-tab index="2" data-ng-click="loadPlaybookData('logs')">
                                     <uib-tab-heading>
@@ -103,7 +104,8 @@
                                     <div
                                         class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
                                         <div class="show-playbook-execution-logs-container"
-                                            data-ng-include="'app/components/header/runningPlaybook/runningPlaybook.html'">
+                                            data-ng-include="'app/components/header/runningPlaybook/runningPlaybook.html'"
+                                            style="padding-top: 35px;">
                                         </div>
                                     </div>
                                 </uib-tab>
@@ -115,9 +117,6 @@
             </div>
         </div>
         <div class="ingestion-modal-footer">
-            <button type="button" class="btn btn-sm btn-second-primary margin-top-lg margin-left-lg"
-                id="playbook-log-back-btn" data-ng-click="movePrevious()"><i
-                    class="fa fa-chevron-left margin-right-sm"></i>Back</button>
             <button type="button" class="btn btn-primary pull-right btn-sm margin-top-lg margin-right-lg"
                 data-ng-click="moveFinishNext()" data-ng-disabled="loadProcessing" id="playbook-log-next-btn">Next<i
                     class="fa fa-chevron-right margin-left-sm"></i>
@@ -127,7 +126,7 @@
     </wz-step>
     <wz-step wz-title="Finish" wz-order="3" class="ingestion-modal-padding wizard-first-step">
         <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
-            <div class="full-height overflow-auto">
+            <div class="overflow-auto">
                 <div class="display-table fixed-table-layout full-height full-width">
                     <div class="full-height display-table-cell vertical-align-middle">
                         <div class="col-md-6 display-flex" style="justify-content: center">
