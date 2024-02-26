@@ -85,19 +85,12 @@
             }
           });
         }
-        if (data.status == 'failed') {
-          $resource(API.WORKFLOW + 'api/workflows/' + data.instance_ids + '/?').get({}).$promise.then(function (response) {
-            $scope.playbookExecutionFailed = true;
-            console.log(data.result["Error message"]);
-          });
-        }
-        if (data.status == 'finished') {
+        if (data.status === 'failed' || data.status === 'finished with error' || data.status === 'finished') {
           getPlaybookResult();
           $scope.playbookInstanceIds = data;
-        }
-      }).then(function (data) {
-        subscription = data;
-      });
+        }).then(function (data) {
+          subscription = data;
+        });
     }
 
     function commentWebsocket() {
@@ -139,7 +132,6 @@
 
     function moveFinishNext() {
       WizardHandler.wizard('solutionpackWizard').next();
-      getPlaybookResult();
     }
 
     function moveNext() {
@@ -264,7 +256,7 @@
     }
 
     $scope.scrollToBottom = function () {
-      $anchorScroll('CICDBottomAnchor');
+      $anchorScroll('PlaybookExecutionWizardBottomAnchor');
     };
 
     function executeGridPlaybook(playbook, triggerStep) {
@@ -337,8 +329,12 @@
     function getPlaybookResult() {
       var endpoint = API.WORKFLOW + 'api/workflows/' + $scope.parent_wf_id + '/';
       $http.get(endpoint).then(function (response) {
-        if (response.data.status === 'finished') {
+        if (response.data.status === 'finished' || response.data.status === 'finished with error') {
           $scope.loadProcessing = false;
+          $scope.playbookResult = response.data.result;
+        }
+        if (response.data.status === 'failed') {
+          $scope.playbookExecutionFailed = true;
           $scope.playbookResult = response.data.result;
         }
       });
@@ -361,4 +357,4 @@
     }
     _init();
   }
-})();
+})();  
