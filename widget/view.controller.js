@@ -8,9 +8,9 @@
     .module('cybersponse')
     .controller('playbookExecutionWizard100Ctrl', playbookExecutionWizard100Ctrl);
 
-  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope', '$timeout', '$anchorScroll', '$location'];
+  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope', '$timeout', '$anchorScroll'];
 
-  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope, $timeout, $anchorScroll, $location) {
+  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope, $timeout, $anchorScroll) {
     $scope.showDataWizard = false;
     $scope.close = close;
     $scope.moveNext = moveNext;
