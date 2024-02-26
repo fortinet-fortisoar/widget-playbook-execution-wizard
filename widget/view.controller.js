@@ -8,9 +8,9 @@
     .module('cybersponse')
     .controller('playbookExecutionWizard100Ctrl', playbookExecutionWizard100Ctrl);
 
-  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope', '$timeout'];
+  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope', '$timeout', '$anchorScroll'];
 
-  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope, $timeout) {
+  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope, $timeout, $anchorScroll) {
     $scope.showDataWizard = false;
     $scope.close = close;
     $scope.moveNext = moveNext;
@@ -71,7 +71,6 @@
         if (data.sourceWebsocketId !== websocketService.getWebsocketSessionId()) {
           if ($scope.taskId && data.task_id && data.task_id === $scope.taskId && data.parent_wf === 'null') {
             angular.element(document.querySelector("[name='solutionpackWizard']").querySelector("[data-ng-controller='RunningPlaybookCtl']")).scope().params.srchBox = data.instance_ids;
-            document.querySelector("[name='solutionpackWizard']").getElementsByClassName("executed-pb-filter-container")[0].style.display = 'none';
             WizardHandler.wizard('solutionpackWizard').next();
             $scope.taskId = undefined;
           }
@@ -239,6 +238,7 @@
     function _getContent(data) {
       $resource(data.entityUuid[0]).get({}).$promise.then(function (details) {
         $scope.commentsContent.push(details.content.replace('<p>', '<p class="display-inline">'));
+        $scope.scrollToBottom();
       });
     }
 
@@ -254,6 +254,7 @@
           return;
         }
         $scope.commentsContent.push(data);
+        $scope.scrollToBottom();
       }, function () {
         toaster.error({
           body: 'Error in getting Pending Input data'
@@ -261,6 +262,10 @@
         $scope.pendingInputTabProcessing = false;
       });
     }
+
+    $scope.scrollToBottom = function () {
+      $anchorScroll('CICDBottomAnchor');
+    };
 
     function executeGridPlaybook(playbook, triggerStep) {
       var deferred = $q.defer();
@@ -287,7 +292,7 @@
                 }
               }
             });
-            $timeout(function() {
+            $timeout(function () {
               var widgetModalElement = document.querySelector('.modal-backdrop');
               var widgetModalZindex = parseInt(widgetModalElement.style.getPropertyValue('z-index'), 10);
               widgetModalElement.setAttribute('style', 'z-index:' + (widgetModalZindex + 20));

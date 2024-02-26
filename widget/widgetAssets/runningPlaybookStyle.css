@@ -2,48 +2,63 @@
   MIT License
   Copyright (c) 2024 Fortinet Inc
   Copyright end */
-.show-playbook-execution-logs-container .canvas-container{
-	height: calc(100vh - 278px);    
+
+.show-playbook-execution-logs-container {
+  position: relative;
 }
 
-.show-playbook-execution-logs-container .zoom-buttons{
-	bottom: 75px !important;
+.show-playbook-execution-logs-container .canvas-container {
+  height: calc(100vh - 278px);
 }
 
-.running-pb-logs-refresh-btn{
+.show-playbook-execution-logs-container .zoom-buttons {
+  bottom: 75px !important;
+}
+
+.show-playbook-execution-logs-container .running-playbook-popup .executed-pb-logs-list .running-pb-logs-refresh-btn {
   z-index: 1;
   top: 10px;
   left: 5px;
 }
 
 .show-playbook-execution-logs-container .running-playbook-popup .executed-pb-logs-list .section {
-    height: calc(100vh - 276px);
+  height: calc(100vh - 276px);
 }
 
-.show-playbook-execution-logs-container .running-playbook-popup .playbook-logs .designer-container{
+.show-playbook-execution-logs-container .running-playbook-popup .playbook-logs .designer-container {
   height: calc(100vh - 280px) !important;
 }
 
 .show-playbook-execution-logs-container .running-playbook-popup .running-step-details-container {
-    height: calc(100vh - 275px) !important;
+  height: calc(100vh - 275px) !important;
 }
 
-.show-playbook-execution-logs-container .running-playbook-popup .running-step-details-container div.jsoneditor{
+.show-playbook-execution-logs-container .running-playbook-popup .running-step-details-container div.jsoneditor {
   height: calc(100vh - 315px);
 }
 
-.show-playbook-execution-logs-container .running-step-details-container .pending-decision-dialog .modal-body{
+.show-playbook-execution-logs-container .running-step-details-container .pending-decision-dialog .modal-body {
   height: inherit !important;
+}
+
+.show-playbook-execution-logs-container #remove-all-top-filter,
+.show-playbook-execution-logs-container .toggle-bar,
+.show-playbook-execution-logs-container .toggleExecutionLogViewContainer {
+  display: none;
 }
 
 .pb-exec-wizard-input-prompt-modal {
   z-index: 1082 !important;
 }
 
-.show-cicd-manual-inputs .modal-body{
+.show-cicd-manual-inputs .modal-body {
   height: auto;
 }
 
-.cicd-hr{
-    border-top: 2px solid #22a6af;
+.cicd-hr {
+  border-top: 2px solid #22a6af;
+}
+
+.tooltip {
+  z-index: 9999;
 }

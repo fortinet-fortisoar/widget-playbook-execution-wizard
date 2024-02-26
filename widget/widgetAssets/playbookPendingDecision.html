@@ -28,11 +28,10 @@
            </div>
           </div>
         </div>
-        <div class="modal-footer padding-left-lg"  data-ng-if="!playbookResumed">
+        <div class="padding-left-lg" data-ng-if="!playbookResumed">
           <button data-ng-disabled="!playbookExecutePermission || error || disabledField" data-ng-repeat="option in decisionResponse.response_mapping.options" type="button" data-ng-class="{'btn-primary': option.primary, 'btn-default':!option.primary}" class="btn btn-sm margin-right-2"
             data-ng-click="submitDecision(option)" id="submit-pending-decision-btn-{{$index}}">{{option.option}}</button>
         </div>
-      </div>
       </div>
   </form>
   
