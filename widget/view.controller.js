@@ -88,9 +88,10 @@
         if (data.status === 'failed' || data.status === 'finished with error' || data.status === 'finished') {
           getPlaybookResult();
           $scope.playbookInstanceIds = data;
-        }).then(function (data) {
-          subscription = data;
-        });
+        }
+      }).then(function (data) {
+        subscription = data;
+      });
     }
 
     function commentWebsocket() {

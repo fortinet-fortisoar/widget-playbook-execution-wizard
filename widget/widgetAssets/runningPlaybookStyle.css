@@ -63,10 +63,6 @@
   z-index: 9999;
 }
 
-.task-comment-content-container {
-  background: #29323e
-}
-
 .pb-execution-wizard-solutionpack-wizard-steps .custom-installing-spinner-content .custom-installing-spinner-block .custom-installing-spinner:before {
   border-bottom-color: #E37607;
   border-top-color: #E37607;
