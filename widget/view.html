@@ -76,11 +76,9 @@ name="solutionpackWizard">
                                         <div
                                             class="col-md-6 prerequisites-section padding-bottom-25 padding-5 pb-execution-wizard-max-height">
                                             <!-- Content for the right section -->
-                                            <ul class="margin-top-20">
+                                            <ul class="padding-20">
                                                 <li data-ng-repeat="comment in commentsContent"
-                                                    class="list-unstyled padding-20">
-                                                    <hr
-                                                        class="pb-execution-wizard-hr margin-bottom-20 margin-top-negative-20">
+                                                    class="list-unstyled padding-20 margin-top-negative-20">
                                                     <div ng-if="!isObject(comment)"
                                                         class="element-secondary-bgcolor padding-20 padding-top-md padding-bottom-md margin-left-18 solid-border">
                                                         <span ng-bind-html="comment | domPurifySanitize"
@@ -88,15 +86,14 @@ name="solutionpackWizard">
                                                             class="break-word custom-markdown-editor"></span>
                                                     </div>
                                                     <div ng-if="isObject(comment)"
-                                                        class="padding-20 padding-top-md padding-bottom-md margin-left-18 solid-border">
+                                                        class="element-secondary-bgcolor padding-20 padding-top-md padding-bottom-md margin-left-18 solid-border">
                                                         <i data-ng-if="!pendingInputTabProcessing"></i><span
                                                             class="show-pb-execution-wizard-manual-inputs padding-bottom-65"
                                                             id="{{ 'comment' + $index }}" data-playbook-pending-decision
                                                             data-decision-response="comment" modal="false"></span>
                                                     </div>
+                                                    <div class="groove-border-bottom padding-bottom-lg"></div>
                                                 </li>
-                                                <hr
-                                                    class="pb-execution-wizard-hr margin-bottom-20 margin-left-18 margin-right-lg margin-top-0">
                                                 <div data-ng-if="loadProcessing && !playbookExecutionFailed"
                                                     class="display-flex justify-content">
                                                     <cs-spinner class="state-wait margin-top-negative-5"
@@ -111,8 +108,7 @@ name="solutionpackWizard">
                                                 <div data-ng-if="playbookExecutionFailed"
                                                     class="margin-bottom-sm margin-top-sm text-center text-danger">
                                                     <span>"Error Message": {{playbookResult['Error message']}}</span>
-                                                    <hr
-                                                        class="pb-execution-wizard-hr margin-bottom-20 margin-left-18 margin-right-lg">
+                                                    <div class="groove-border-bottom padding-bottom-lg"></div>
                                                 </div>
                                             </ul>
                                             <div id="PlaybookExecutionWizardBottomAnchor"

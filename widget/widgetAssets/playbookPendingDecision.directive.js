@@ -11,11 +11,11 @@
 
   playbookPendingDecision.$inject = ['Field', '$filter', 'picklistsService', 'playbookService', 'toaster', '_', '$interpolate',
     'currentDateMinusService', 'addToCurrentDateService', 'convertToRelativeDateService', 'getRelativeDateService', 'usersService', 'FormEntityService',
-    'CommonUtils', 'Entity', '$timeout'];
+    'CommonUtils', 'Entity', '$timeout', '$rootScope'];
 
   function playbookPendingDecision(Field, $filter, picklistsService, playbookService, toaster, _, $interpolate,
     currentDateMinusService, addToCurrentDateService, convertToRelativeDateService, getRelativeDateService, usersService, FormEntityService,
-    CommonUtils, Entity, $timeout) {
+    CommonUtils, Entity, $timeout, $rootScope) {
     var directive = {
       restrict: 'A',
       scope: {
@@ -30,6 +30,7 @@
     };
 
     function link(scope) {
+      scope.currentTheme = $rootScope.theme.id;
       scope.processing = false;
       scope.playbookResumed = false;
       scope.pendingDecisionFormDisabled = false;

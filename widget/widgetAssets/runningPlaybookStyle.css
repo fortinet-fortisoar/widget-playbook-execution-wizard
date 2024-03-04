@@ -72,3 +72,15 @@
   max-height: calc(100vh - 165px) !important;
   overflow-y: auto;
 }
+
+.steel .playbook-pending-decision-dialog .playbook-element-secondary-bgcolor {
+  background: #17222b !important;
+}
+
+.dark .playbook-pending-decision-dialog .playbook-element-secondary-bgcolor {
+  background: #131313 !important;
+}
+
+.light .playbook-pending-decision-dialog .playbook-element-secondary-bgcolor {
+  background: #f9f9f9 !important;
+}
