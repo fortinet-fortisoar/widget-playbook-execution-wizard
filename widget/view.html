@@ -2,22 +2,20 @@
   MIT License
   Copyright (c) 2024 Fortinet Inc
   Copyright end -->
-<link rel="stylesheet" type="text/css"
-    href="widgets/installed/playbookExecutionWizard-1.0.0/widgetAssets/runningPlaybookStyle.css" />
+<link rel="stylesheet" type="text/css" href="{{widgetCSS}}" />
 <div class="modal-header">
     <h3 class="modal-title col-md-9">{{playbookTitle}}</h3>
 </div>
 
-<wizard on-finish="close()" indicators-position="top" class="cs-wizard ingestion-steps pb-execution-wizard-solutionpack-wizard-steps" 
-name="solutionpackWizard">
+<wizard on-finish="close()" indicators-position="top"
+    class="cs-wizard ingestion-steps pb-execution-wizard-solutionpack-wizard-steps" name="solutionpackWizard">
     <wz-step wz-title="Start" wz-order="1" class="ingestion-modal-padding wizard-first-step">
         <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
             <div class="full-height overflow-auto">
                 <div class="display-table fixed-table-layout full-height full-width">
                     <div class="full-height display-table-cell vertical-align-middle">
                         <div class="col-md-6 display-flex" style="justify-content: center">
-                            <img class="img-responsive"
-                                src="widgets/installed/playbookExecutionWizard-1.0.0/widgetAssets/images/start.png">
+                            <img class="img-responsive" src="{{startIcon}}">
                         </div>
                         <div class="col-md-6 prerequisites-section padding-bottom-25 padding-left-0">
                             <div class="font-size-30 line-height-1">Welcome</div><br />
@@ -45,15 +43,18 @@ name="solutionpackWizard">
                     </div>
                 </div>
             </div>
-            <span class="font-size-14 margin-0 margin-top-sm text-color-orange">Task execution is in progress.....</span>
+            <span class="font-size-14 margin-0 margin-top-sm text-color-orange">Task execution is in
+                progress.....</span>
         </div>
-        <div class="margin-bottom-sm margin-top-sm text-center text-success" data-ng-if="!loadProcessing">
+        <div class="font-size-14 margin-0 text-center margin-top-sm margin-bottom-sm text-success"
+            data-ng-if="!loadProcessing">
             <i class="icon icon-approval margin-right-sm"></i>
-            <span>Task Executed Successfully ...</span>
+            <span>Task Completed Successfully</span>
         </div>
-        <div class="margin-bottom-sm margin-top-sm text-center text-danger" data-ng-if="playbookExecutionFailed">
+        <div class="font-size-14 margin-0 text-center margin-top-sm margin-bottom-sm text-danger"
+            data-ng-if="playbookExecutionFailed">
             <i class="icon icon-failed margin-right-sm"></i>
-            <span>Task execution failed. Check task detailed flow for more details ...</span>
+            <span>Task execution failed. Check task detailed flow for more details</span>
         </div>
         <div class="full-width wz-step-height padding-bottom-md solutionpack-wizard-modal-body">
             <div class="overflow-auto">
@@ -69,8 +70,7 @@ name="solutionpackWizard">
                                     <div class="container full-width">
                                         <div class="col-md-6 display-flex align-items-center">
                                             <div class="full-width margin-left-120 margin-top-10per">
-                                                <img class="img-responsive"
-                                                    src="widgets/installed/playbookExecutionWizard-1.0.0/widgetAssets/images/task.png">
+                                                <img class="img-responsive" src="{{taskIcon}}">
                                             </div>
                                         </div>
                                         <div
@@ -96,14 +96,15 @@ name="solutionpackWizard">
                                                 </li>
                                                 <div data-ng-if="loadProcessing && !playbookExecutionFailed"
                                                     class="display-flex justify-content">
-                                                    <cs-spinner class="state-wait margin-top-negative-5"
+                                                    <cs-spinner class="margin-top-negative-20 state-wait"
                                                         data-show-background="true"></cs-spinner>
-                                                    <div class="font-size-14 margin-30">Fetching Task Data ...</div>
+                                                    <div class="font-size-14 margin-0 margin-15 text-center text-success">
+                                                        Fetching Task Data ...</div>
                                                 </div>
                                                 <div data-ng-if="!loadProcessing"
-                                                    class="margin-bottom-sm margin-top-sm text-center text-success">
+                                                    class="font-size-14 margin-0 text-center margin-top-sm text-success text-success">
                                                     <i class="icon icon-approval margin-right-sm"></i>
-                                                    <span>Task Completed Successfully ...</span>
+                                                    <span>Task Completed Successfully</span>
                                                 </div>
                                                 <div data-ng-if="playbookExecutionFailed"
                                                     class="margin-bottom-sm margin-top-sm text-center text-danger">
@@ -111,8 +112,7 @@ name="solutionpackWizard">
                                                     <div class="groove-border-bottom padding-bottom-lg"></div>
                                                 </div>
                                             </ul>
-                                            <div id="PlaybookExecutionWizardBottomAnchor"
-                                                class="height-20 padding-bottom-65"></div>
+                                            <div id="PlaybookExecutionWizardBottomAnchor"></div>
                                         </div>
                                     </div>
                                 </uib-tab>
@@ -147,8 +147,7 @@ name="solutionpackWizard">
                 <div class="display-table fixed-table-layout full-height full-width">
                     <div class="full-height display-table-cell vertical-align-middle">
                         <div class="col-md-6 display-flex" style="justify-content: center">
-                            <img class="img-responsive"
-                                src="widgets/installed/playbookExecutionWizard-1.0.0/widgetAssets/images/finish.png">
+                            <img class="img-responsive" src="{{finishIcon}}">
                         </div>
                         <div class="col-md-6 prerequisites-section padding-bottom-25 padding-left-0">
                             <div class="font-size-40 line-height-1">You are all set!</div><br />

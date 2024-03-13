@@ -69,7 +69,7 @@
 }
 
 .pb-execution-wizard-max-height {
-  max-height: calc(100vh - 165px) !important;
+  max-height: calc(100vh - 295px) !important;
   overflow-y: auto;
 }
 
