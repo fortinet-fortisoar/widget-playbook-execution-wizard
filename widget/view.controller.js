@@ -8,9 +8,9 @@
     .module('cybersponse')
     .controller('playbookExecutionWizard100Ctrl', playbookExecutionWizard100Ctrl);
 
-  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope', '$timeout', '$anchorScroll'];
+  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope', '$timeout', '$anchorScroll', 'widgetBasePath'];
 
-  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope, $timeout, $anchorScroll) {
+  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope, $timeout, $anchorScroll, widgetBasePath) {
     $scope.showDataWizard = false;
     $scope.close = close;
     $scope.moveNext = moveNext;
@@ -35,6 +35,11 @@
     $scope.playbookExecutionFailed = false;
     $scope.loadPlaybookData = loadPlaybookData;
     $state.params.tab = 'comments';
+    $scope.widgetBasePath = widgetBasePath;
+    $scope.startIcon = widgetBasePath + 'widgetAssets/images/start.png';
+    $scope.widgetCSS = widgetBasePath + 'widgetAssets/runningPlaybookStyle.css';
+    $scope.taskIcon = widgetBasePath + 'widgetAssets/images/task.png';
+    $scope.finishIcon = widgetBasePath + 'widgetAssets/images/finish.png';
     $scope.activeTab = $state.params.tab === 'logs' ? 2 : 1;
     $scope.$watch('activeTab', function ($newTab, $oldTab) {
       if (!$oldTab) {
@@ -257,7 +262,9 @@
     }
 
     $scope.scrollToBottom = function () {
-      $anchorScroll('PlaybookExecutionWizardBottomAnchor');
+      $timeout(function () {
+        $anchorScroll('PlaybookExecutionWizardBottomAnchor');
+      }, 0);
     };
 
     function executeGridPlaybook(playbook, triggerStep) {
