@@ -98,8 +98,12 @@
                                                     class="display-flex justify-content">
                                                     <cs-spinner class="margin-top-negative-20 state-wait"
                                                         data-show-background="true"></cs-spinner>
-                                                    <div class="font-size-14 margin-0 margin-15 text-center text-success">
-                                                        Fetching Task Data ...</div>
+                                                    <div data-ng-if="isTasksExecuting"
+                                                        class="font-size-14 margin-0 margin-15 text-center text-success">
+                                                        Executing Tasks...</div>
+                                                    <div data-ng-if="!isTasksExecuting"
+                                                        class="font-size-14 margin-0 margin-15 text-center text-success">
+                                                        Awaiting User Input...</div>
                                                 </div>
                                                 <div data-ng-if="!loadProcessing"
                                                     class="font-size-14 margin-0 text-center margin-top-sm text-success text-success">
