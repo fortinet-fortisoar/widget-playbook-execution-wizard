@@ -235,7 +235,7 @@
 
     function _getContent(data) {
       $resource(data.entityUuid[0]).get({}).$promise.then(function (details) {
-        $scope.tasksExecutingLabel = true;
+        $scope.isTasksExecuting = true;
         $scope.commentsContent.push(details.content.replace('<p>', '<p class="display-inline">'));
         $scope.scrollToBottom();
       });
@@ -252,7 +252,7 @@
           $scope.pendingInputTabProcessing = false;
           return;
         }
-        $scope.tasksExecutingLabel = false;
+        $scope.isTasksExecuting = false;
         $scope.commentsContent.push(data);
         $scope.scrollToBottom();
       }, function () {
