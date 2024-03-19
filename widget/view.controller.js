@@ -33,6 +33,7 @@
     $scope.awaitingStepInput = undefined;
     $scope.loadProcessing = false;
     $scope.playbookExecutionFailed = false;
+    $scope.isTasksExecuting = true;
     $scope.loadPlaybookData = loadPlaybookData;
     $state.params.tab = 'comments';
     $scope.widgetBasePath = widgetBasePath;
