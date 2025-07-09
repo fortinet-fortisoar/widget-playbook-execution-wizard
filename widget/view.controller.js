@@ -1,22 +1,21 @@
 /* Copyright start
   MIT License
-  Copyright (c) 2024 Fortinet Inc
+  Copyright (c) 2025 Fortinet Inc
   Copyright end */
 'use strict';
 (function () {
   angular
     .module('cybersponse')
-    .controller('playbookExecutionWizard100Ctrl', playbookExecutionWizard100Ctrl);
+    .controller('playbookExecutionWizard101Ctrl', playbookExecutionWizard101Ctrl);
 
-  playbookExecutionWizard100Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope', '$timeout', '$anchorScroll', 'widgetBasePath'];
+  playbookExecutionWizard101Ctrl.$inject = ['$scope', '$q', 'WizardHandler', '$resource', 'API', '$uibModal', '_', 'Entity', '$filter', 'websocketService', '$http', 'usersService', 'playbookService', 'toaster', '$state', 'currentPermissionsService', 'ALL_RECORDS_SIZE', 'CommonUtils', '$rootScope', '$timeout', '$anchorScroll', 'widgetBasePath'];
 
-  function playbookExecutionWizard100Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope, $timeout, $anchorScroll, widgetBasePath) {
+  function playbookExecutionWizard101Ctrl($scope, $q, WizardHandler, $resource, API, $uibModal, _, Entity, $filter, websocketService, $http, usersService, playbookService, toaster, $state, currentPermissionsService, ALL_RECORDS_SIZE, CommonUtils, $rootScope, $timeout, $anchorScroll, widgetBasePath) {
     $scope.showDataWizard = false;
     $scope.close = close;
     $scope.moveNext = moveNext;
     $scope.moveFinishNext = moveFinishNext;
     $scope.movePrevious = movePrevious;
-    $scope.executeGridPlaybook = executeGridPlaybook;
     $scope.playbookDetails = '';
     $scope.playbookDescription = '';
     $scope.triggerStep = {};
@@ -42,6 +41,8 @@
     $scope.taskIcon = widgetBasePath + 'widgetAssets/images/task.png';
     $scope.finishIcon = widgetBasePath + 'widgetAssets/images/finish.png';
     $scope.activeTab = $state.params.tab === 'logs' ? 2 : 1;
+    $scope.disableStartButton = false;
+
     $scope.$watch('activeTab', function ($newTab, $oldTab) {
       if (!$oldTab) {
         // skip first run
@@ -142,6 +143,7 @@
     }
 
     function moveNext() {
+      $scope.disableStartButton = true;
       loadPlaybookData($state.params.tab);
       if ($scope.jsonToGrid) {
         _checkTaskRecord();
@@ -304,6 +306,8 @@
               triggerPlaybookWithRecords(playbook, triggerStep.arguments.resources[0], $scope.payload.selectedRecord, result).then(function (workflowID) {
                 deferred.resolve();
               });
+            }, function(){
+                $scope.disableStartButton = false; //on modal dismiss 
             });
           } else {
             triggerPlaybookWithRecords(playbook, triggerStep.arguments.resources[0], $scope.payload.selectedRecord, { inputVariables: {} }).then(function (workflowID) {

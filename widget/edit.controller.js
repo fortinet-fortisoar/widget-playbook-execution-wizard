@@ -1,16 +1,16 @@
 /* Copyright start
   MIT License
-  Copyright (c) 2024 Fortinet Inc
+  Copyright (c) 2025 Fortinet Inc
   Copyright end */
 'use strict';
 (function () {
     angular
         .module('cybersponse')
-        .controller('editPlaybookExecutionWizard100Ctrl', editPlaybookExecutionWizard100Ctrl);
+        .controller('editPlaybookExecutionWizard101Ctrl', editPlaybookExecutionWizard101Ctrl);
 
-    editPlaybookExecutionWizard100Ctrl.$inject = ['$scope', '$uibModalInstance', 'config'];
+    editPlaybookExecutionWizard101Ctrl.$inject = ['$scope', '$uibModalInstance', 'config'];
 
-    function editPlaybookExecutionWizard100Ctrl($scope, $uibModalInstance, config) {
+    function editPlaybookExecutionWizard101Ctrl($scope, $uibModalInstance, config) {
         $scope.cancel = cancel;
         $scope.save = save;
         $scope.config = config;

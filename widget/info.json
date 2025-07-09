@@ -2,15 +2,15 @@
     "name": "playbookExecutionWizard",
     "title": "Playbook Execution Wizard",
     "subTitle": "The Playbook Execution Wizard widget renders playbook execution logs and related comments on the wizard",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "published_date": 1703148258,
     "metadata": {
         "description": "The Playbook Execution Wizard widget renders playbook execution logs and related comments on the wizard for a more fine-grained control on your processes",
-        "help_online": "https://github.com/fortinet-fortisoar/widget-playbook-execution-wizard/blob/release/1.0.0/README.md",
+        "help_online": "https://github.com/fortinet-fortisoar/widget-playbook-execution-wizard/blob/release/1.0.1/README.md",
         "snapshots": [
-            "https:\/\/repo.fortisoar.fortinet.com\/widgets\/playbookExecutionWizard-1.0.0\/images\/start_page.png",
-            "https:\/\/repo.fortisoar.fortinet.com\/widgets\/playbookExecutionWizard-1.0.0\/images\/task_page.png",
-            "https:\/\/repo.fortisoar.fortinet.com\/widgets\/playbookExecutionWizard-1.0.0\/images\/finish_page.png"
+            "https:\/\/repo.fortisoar.fortinet.com\/widgets\/playbookExecutionWizard-1.0.1\/images\/start_page.png",
+            "https:\/\/repo.fortisoar.fortinet.com\/widgets\/playbookExecutionWizard-1.0.1\/images\/task_page.png",
+            "https:\/\/repo.fortisoar.fortinet.com\/widgets\/playbookExecutionWizard-1.0.1\/images\/finish_page.png"
         ],
         "pages": [],
         "certified": "Yes",
