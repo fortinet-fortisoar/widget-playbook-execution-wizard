@@ -1,6 +1,6 @@
 /* Copyright start
   MIT License
-  Copyright (c) 2024 Fortinet Inc
+  Copyright (c) 2025 Fortinet Inc
   Copyright end */
 'use strict';
 
@@ -25,7 +25,7 @@
         unauthenticated: '=?'
       },
       controller: 'BaseCtrl',
-      templateUrl: 'widgets/installed/playbookExecutionWizard-1.0.0/widgetAssets/playbookPendingDecision.html',
+      templateUrl: 'widgets/installed/playbookExecutionWizard-1.0.1/widgetAssets/playbookPendingDecision.html',
       link: link
     };
 

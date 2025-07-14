@@ -1,6 +1,6 @@
 <!-- Copyright start
   MIT License
-  Copyright (c) 2024 Fortinet Inc
+  Copyright (c) 2025 Fortinet Inc
   Copyright end -->
 <link rel="stylesheet" type="text/css" href="{{widgetCSS}}" />
 <div class="modal-header">
@@ -22,7 +22,7 @@
                             <div class="padding-right-30 margin-top-sm max-width-450px">
                                 <p class="font-size-14 margin-bottom-0" data-ng-bind-html="playbookDetails"></p>
                             </div>
-                            <button type="button"
+                            <button type="button" data-ng-disabled="disableStartButton"
                                 class="btn btn-primary btn-sm margin-top-xlg text-transform-none font-size-14"
                                 data-ng-click="moveNext()" id="solutionpack-next-btn">Let's get started<i
                                     class="fa fa-chevron-right margin-left-sm"></i></button>
